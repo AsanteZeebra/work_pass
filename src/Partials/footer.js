@@ -6,10 +6,10 @@ const Footer = () => {
         <>
          <footer id="footer" className="footer">
     <div className="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>WorkPass</span></strong>. All Rights Reserved
     </div>
     <div className="credits">
-     <a href="https://bootstrapmade.com/">BootstrapMade</a>
+     <Link to="#">WorkPass Int. Lmited</Link>
     </div>
   </footer>
 

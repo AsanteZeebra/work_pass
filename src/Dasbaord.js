@@ -1,10 +1,83 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect,useCallback  } from "react";
+import  {jwtDecode} from "jwt-decode";
+import axios from 'axios';
 
 const Dashboard = () => {
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const navigate = useNavigate();
+
+  // Memoize handleLogout to prevent re-creation
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token'); // Remove token from localStorage
+    localStorage.removeItem('username'); // Remove username from localStorage
+    navigate('/login'); // Redirect to login page
+  }, [navigate]); // Dependency ensures it doesn't change on every render
+
+  useEffect(() => {
+    const verifyToken = async (token) => {
+      try {
+        const response = await axios.post(
+          'http://localhost/wp_api/authentication/verify_token.php',
+          {}, // Empty body since it's a POST request
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log('Token is valid:', response.data);
+      } catch (error) {
+        console.error('Token validation error:', error);
+        handleLogout();
+      }
+    };
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // Current time in seconds
+
+        if (decodedToken.exp < currentTime) {
+          handleLogout();
+        } else {
+          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
+          const logoutTimer = setTimeout(() => {
+            handleLogout();
+          }, timeout);
+
+          // ✅ Call verifyToken before returning
+          verifyToken(token);
+
+          // ✅ Cleanup the timer when the component unmounts
+          return () => clearTimeout(logoutTimer);
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        handleLogout();
+      }
+    } else {
+      navigate('/login');
+    }
+  }, [token, navigate, handleLogout]); // ✅ Now handleLogout is included
+ 
+
+  
+
     return(
 <>
-
+<div className="pagetitle">
+      <h1>Dashbaord</h1>
+      <nav>
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><a href="index.html">Dashbaord</a></li>
+          <li className="breadcrumb-item active">home</li>
+        </ol>
+      </nav>
+    </div>
       <div className="row">
       
         <div className="col-lg-8">

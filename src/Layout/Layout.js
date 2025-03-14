@@ -16,11 +16,11 @@ const Layout = ({children}) => {
         <section class="section dashboard">
 
         {children}
-        <Footer />
+       
             </section>
-
+          
         </div>
-        
+        <Footer />
         </>
     );
 }
