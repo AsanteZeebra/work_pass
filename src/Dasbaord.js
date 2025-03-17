@@ -12,6 +12,8 @@ const Dashboard = () => {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token'); // Remove token from localStorage
     localStorage.removeItem('username'); // Remove username from localStorage
+    localStorage.removeItem('uid'); // Remove user_id from localStorage
+    setToken(null); // Set token state to null
     navigate('/login'); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 

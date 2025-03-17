@@ -825,6 +825,16 @@ h6 {
   background: #f6f6fe;
 }
 
+.suspect-card .card-icon {
+  color: #eac254;
+  background: #ffecdf;
+}
+
+.banned-card .card-icon {
+  color: #c71d0d;
+  background: #ffecdf;
+}
+
 .dashboard .revenue-card .card-icon {
   color: #2eca6a;
   background: #e0f8e9;

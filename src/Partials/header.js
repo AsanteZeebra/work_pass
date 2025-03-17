@@ -49,6 +49,7 @@ const Header = () => {
         // Clear token from local storage
         localStorage.removeItem("token");
         localStorage.removeItem("username");
+        localStorage.removeItem("uid");
 
         // Redirect to login page
         navigate("/login");

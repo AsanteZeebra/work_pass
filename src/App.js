@@ -5,6 +5,7 @@ import Login from './components/authentication/login';
 import Create_Account from './components/authentication/singup';
 import Overview from './components/clients/overview';
 import Account_Settings from './components/authentication/account_settings';
+import UsersProfile from './components/authentication/users_profile';
 import { useState } from 'react';
 
 
@@ -24,6 +25,8 @@ function App() {
       <Route path="/Dashbaord" element={<Layout><Dashboard token={token} /></Layout>} />
       <Route path="/components/clients/overview" element={<Layout><Overview token={token} /></Layout>} />
       <Route path="/components/authentication/account_settings" element={<Layout><Account_Settings token={token} /></Layout>} />
+      <Route path="/components/authentication/users_profile" element={<Layout><UsersProfile token={token} /></Layout>} />
+   
     </Routes>
      </Router>
   );
