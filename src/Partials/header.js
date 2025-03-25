@@ -47,9 +47,8 @@ const Header = () => {
         console.log(response.data.message); // Log success message
 
         // Clear token from local storage
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("uid");
+      
+        localStorage.clear();
 
         // Redirect to login page
         navigate("/login");
@@ -66,6 +65,7 @@ const Header = () => {
       <div className="d-flex align-items-center justify-content-between">
         <Link to="index.html" className="logo d-flex align-items-center">
           <img src="assets/img/logo.png" alt="" />
+          
           <span className="d-none d-lg-block">WorkPass</span>
         </Link>
         <i className="bi bi-list toggle-sidebar-btn"></i>

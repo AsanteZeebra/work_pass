@@ -67,7 +67,7 @@ const Create_Account = () => {
                   <div className="d-flex justify-content-center py-4">
                     <Link to="/" className="logo d-flex align-items-center w-auto">
                       <img src="assets/img/logo.png" alt="" />
-                      <span className="d-none d-lg-block">NiceAdmin</span>
+                      <span className="d-none d-lg-block">WorkPass</span>
                     </Link>
                   </div>
 

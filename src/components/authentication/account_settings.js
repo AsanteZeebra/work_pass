@@ -25,10 +25,9 @@ const Account_Settings = () => {
   const [loading, setLoading] = useState(true);
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token'); // Remove token from localStorage
-    localStorage.removeItem('username'); // Remove username from localStorage
-    localStorage.removeItem('uid'); // Remove user_id from localStorage
+   
     setToken(null); // Set token state to null
+    localStorage.clear(); // Clear all items from localStorage
     navigate('/login'); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
@@ -134,6 +133,10 @@ const Account_Settings = () => {
     };
   }, []);
 
+  const handleViewProfile = (uid,email) => {
+    localStorage.setItem("uid", uid);
+    localStorage.setItem("email", email);
+  };
 
   return (
     <>
@@ -260,14 +263,13 @@ const Account_Settings = () => {
                                   <i className="bi bi-three-dots-vertical" id={`dropdownMenuButton${user.uid}`} data-bs-toggle="dropdown" aria-expanded="false" style={{ cursor: 'pointer' }}></i>
                                   <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton${user.uid}`}>
                                     <li>
-                                      <Link to={`/components/authentication/users_profile`} className="dropdown-item">
-                                      { localStorage.setItem("uid", user.uid)}
+                                      <Link to={`/components/authentication/users_profile`} className="dropdown-item" onClick={() => handleViewProfile(user.uid,user.email)}>
                                         <i className="bi bi-eye"></i> View
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to={`/users-edit/${user.uid}`} className="dropdown-item">
-                                        <i className="bi bi-gear"></i> Edit
+                                        <i className="bi bi-gear"></i> Settings
                                       </Link>
                                     </li>
                                   </ul>

@@ -23,13 +23,9 @@ const Sidebar = () => {
                   <i className="bi bi-circle"></i><span>Overview</span>
                 </Link>
               </li>
+             
               <li>
-                <Link to="">
-                  <i className="bi bi-circle"></i><span>Add Client</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="">
+                <Link to="/components/clients/customers">
                   <i className="bi bi-circle"></i><span>Manage Client</span>
                 </Link>
               </li>

@@ -38,6 +38,7 @@ const onSubmit = async (data) => {
         if (result.token) {
             localStorage.setItem("token", result.token);
             localStorage.setItem("username", result.username); // Store username in local storage
+            localStorage.setItem("role", result.role); // Store user ID in local storage
             //console.log("Login successful:", result);
             //toast.success("Login successful!", { position: "top-right" });
             navigate("/dashbaord"); // Navigate to Dashboard after successful login

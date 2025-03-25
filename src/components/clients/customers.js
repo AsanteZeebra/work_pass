@@ -10,7 +10,7 @@ import "datatables.net-buttons/js/buttons.html5"; // Export buttons (CSV, Excel,
 import "datatables.net-buttons/js/buttons.print"; // Print button
 import "jszip"; // Required for Excel export
 import "pdfmake"; // Required for PDF export
-import "pdfmake/build/vfs_fonts"; // PDF fonts+
+import "pdfmake/build/vfs_fonts"; // PDF fonts
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
@@ -20,18 +20,20 @@ import { ClipLoader } from "react-spinners";
 // CSS Imports
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
+import countryList from "country-list";
 
-const Overview = () => {
-
-
+const Customers = ({ onChange }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const countries = countryList.getNames();
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token"); // Remove token from localStorage
     localStorage.removeItem("username"); // Remove username from localStorage
+    localStorage.clear();
     navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
@@ -69,10 +71,10 @@ const Overview = () => {
             handleLogout();
           }, timeout);
 
-          // ✅ Call verifyToken before returning
+          // Call verifyToken before returning
           verifyToken(token);
 
-          // ✅ Cleanup the timer when the component unmounts
+          // Cleanup the timer when the component unmounts
           return () => clearTimeout(logoutTimer);
         }
       } catch (error) {
@@ -82,11 +84,8 @@ const Overview = () => {
     } else {
       navigate("/login");
     }
-  }, [token, navigate, handleLogout]); // ✅ Now handleLogout is included
+  }, [token, navigate, handleLogout]); // Now handleLogout is included
 
-  {
-    /* form validation and submission */
-  }
   // Define the modal form validation schema using yup
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
@@ -96,11 +95,13 @@ const Overview = () => {
       .required("Email is required"),
     gender: yup.string().required("Please choose gender"),
     dob: yup.string().required("please choose date of birth"),
-    telephone: yup.string().required("Please eneter telephone  number"),
-    passport: yup.string().required("PLease enter passport number"),
-    issue_date: yup.string().required("pleas choose issue_date"),
-    expiry_date: yup.string().required("Choose epiry date"),
-    nationality: yup.string().required("choose a nationality"),
+    telephone: yup.string().required("Please enter telephone number"),
+    passport: yup.string().required("Please enter passport number"),
+    issue_date: yup.string().required("Please choose issue date"),
+    expiry_date: yup.string().required("Choose expiry date"),
+    nationality: yup.string().required("Choose a nationality"),
+    app_type:yup.string().required("Enter Application Type"),
+    destination:yup.string().required("Choose destination country"),
   });
 
   const {
@@ -111,7 +112,7 @@ const Overview = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -127,6 +128,8 @@ const Overview = () => {
           issue_date: data.issue_date,
           expiry_date: data.expiry_date,
           nationality: data.nationality,
+          app_type:data.app_type,
+          destination:data.destination,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -135,9 +138,10 @@ const Overview = () => {
 
       if (response.data.status === "success") {
         toast.success(response.data.message, { position: "top-right" });
+        console.log(response.data.message);
         setLoading(false);
         reset(); // Reset the form after successful submission
-        // ✅ Manually close modal without Bootstrap JS
+        // Manually close modal without Bootstrap JS
       } else {
         toast.error(response.data.message, { position: "top-right" });
         setLoading(false);
@@ -149,6 +153,7 @@ const Overview = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get("http://localhost/wp_api/clients/fetch_customers.php")
       .then((response) => {
@@ -165,51 +170,10 @@ const Overview = () => {
           responsive: true,
           lengthMenu: [5, 10, 25, 50],
           pageLength: 10,
-          destroy: true,
           paging: true,
+          searching: true,
+          destroy: true,
           dom: "Bfrtip",
-          data: response.data.users, // Populate table with data
-          columns: [
-            { data: "client_id", title: "ID" },
-            { data: "fullname", title: "Fullname" },
-            { data: "email", title: "Email" },
-            { data: "nationality", title: "Nationality" },
-            { data: "expiry_date", title: "Passport Expiry" },
-            { data: "telephone", title: "Telephone" },
-            {
-              data: "status",
-              title: "Status",
-              render: function (data) {
-                let badgeClass =
-                  data === "Active"
-                    ? "bg-success"
-                    : data === "Pending"
-                    ? "bg-warning"
-                    : data === "Suspended" || data === "Blocked"
-                    ? "bg-danger"
-                    : "bg-secondary";
-                return `<span class="badge ${badgeClass}">${data}</span>`;
-              },
-            },
-            {
-              data: null,
-              title: "Actions",
-              render: function (data, type, row) {
-                return `
-                  <div class="dropdown">
-                    <i class="bi bi-three-dots-vertical"
-                       data-bs-toggle="dropdown"
-                       style="cursor: pointer;"></i>
-                    <ul class="dropdown-menu">
-                      <li><a href=""
-                             class="dropdown-item"><i class="bi bi-eye"></i> View</a></li>
-                      <li><a href="/users-edit/${row.client_id}"
-                             class="dropdown-item"><i class="bi bi-gear"></i> Settings</a></li>
-                    </ul>
-                  </div>`;
-              },
-            },
-          ],
           buttons: [
             {
               extend: "csv",
@@ -225,21 +189,38 @@ const Overview = () => {
               extend: "print",
               text: '<i class="bi bi-printer"></i> Print',
               className: "btn btn-light",
+              customize: function (win) {
+                $(win.document.body)
+                  .find("table")
+                  .addClass("display")
+                  .css("font-size", "9pt");
+                $(win.document.body).find("h1").css("text-align", "center");
+                $(win.document.head).append(
+                  '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" type="text/css" />'
+                );
+              },
             },
           ],
         });
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
+        toast.error("Error fetching users");
         setLoading(false);
       });
 
+    // Cleanup DataTable on component unmount
     return () => {
       if ($.fn.DataTable.isDataTable("#myTable")) {
         $("#myTable").DataTable().destroy();
       }
     };
   }, []);
+
+  const handleViewProfile = (uid, email) => {
+    localStorage.setItem("client_id", uid);
+  };
+
   return (
     <>
       <div className="pagetitle">
@@ -247,285 +228,20 @@ const Overview = () => {
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <a href="index.html">Dashbaord</a>
+              <a href="index.html">Dashboard</a>
             </li>
-            <li className="breadcrumb-item active">overview</li>
+            <li className="breadcrumb-item active">customers</li>
           </ol>
         </nav>
       </div>
       <div className="row">
         <div className="col-lg-12">
           <div className="row">
-            <div className="col-xxl-3">
-              <div className="card info-card sales-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Active <span>| All</span>
-                  </h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-check2-circle"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>145</h6>
-                      <span className="text-success small pt-1 fw-bold">
-                        12%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "#269746" }}
-                        ></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xxl-3">
-              <div className="card info-card revenue-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Pending <span>| All</span>
-                  </h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-clock-history"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>264</h6>
-                      <span className="text-warning small pt-1 fw-bold">
-                        8%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-down-right-square"
-                          style={{ color: "red" }}
-                        ></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xxl-3">
-              <div className="card info-card revenue-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Completed <span>| This Month</span>
-                  </h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-check-circle"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>3,264</h6>
-                      <span className="text-success small pt-1 fw-bold">
-                        45%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "#269746" }}
-                        ></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xxl-3">
-              <div className="card info-card customers-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Rejected <span>| This Year</span>
-                  </h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-x-circle"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>15</h6>
-                      <span className="text-danger small pt-1 fw-bold">
-                        79%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "red" }}
-                        ></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-12">
-              <div className="card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Reports <span>/This Month</span>
-                  </h5>
-                  <div id="reportsChart"></div>
-                </div>
-              </div>
-            </div>
             <div className="col-12">
               <div className="card recent-sales overflow-auto">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                {/*Table card */}
                 <div className="card-body">
                   <div className="modal fade" id="adm" tabIndex="-1">
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                    <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" >
                       <div className="modal-content">
                         <div className="modal-header">
                           <h5 className="modal-title">Add New</h5>
@@ -539,7 +255,6 @@ const Overview = () => {
                         <div className="modal-body">
                           <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="row mb-3">
-                              {/* Fullname */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="fullname">Full Name</label>
@@ -558,7 +273,6 @@ const Overview = () => {
                                 </div>
                               </div>
 
-                              {/* Date of Birth */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="dob">Date of Birth</label>
@@ -577,7 +291,6 @@ const Overview = () => {
                             </div>
 
                             <div className="row mb-3">
-                              {/* Gender Selection */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="gender">Gender</label>
@@ -600,7 +313,6 @@ const Overview = () => {
                                 </div>
                               </div>
 
-                              {/* Telephone Number */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="telephone">Telephone</label>
@@ -622,7 +334,6 @@ const Overview = () => {
                             </div>
 
                             <div className="row mb-3">
-                              {/* Passport Number */}
                               <div className="col-md-12">
                                 <div className="form-group">
                                   <label htmlFor="passport">
@@ -646,7 +357,6 @@ const Overview = () => {
                             </div>
 
                             <div className="row mb-3">
-                              {/* Issue Date */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="issue_date">Issue Date</label>
@@ -663,7 +373,6 @@ const Overview = () => {
                                 </div>
                               </div>
 
-                              {/* Expiry Date */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="expiry_date">
@@ -684,7 +393,6 @@ const Overview = () => {
                             </div>
 
                             <div className="row mb-3">
-                              {/* Email */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="email">Email</label>
@@ -702,7 +410,6 @@ const Overview = () => {
                                 </div>
                               </div>
 
-                              {/* Nationality */}
                               <div className="col-md-6">
                                 <div className="form-group">
                                   <label htmlFor="nationality">
@@ -713,14 +420,14 @@ const Overview = () => {
                                     id="nationality"
                                     name="nationality"
                                     {...register("nationality")}
+                                    onChange={onChange}
                                   >
-                                    <option value="">
-                                      -- Select Nationality --
+                                    <option value="">Select a country</option>
+                                    {countries.map((country, index) => (
+                                    <option key={index} value={country}>
+                                    {country}
                                     </option>
-                                    <option value="Ghanaian">Ghanaian</option>
-                                    <option value="Nigerian">Nigerian</option>
-                                    <option value="Kenyan">Kenyan</option>
-                                    <option value="Other">Other</option>
+                                    ))}
                                   </select>
                                   <p className="text-danger">
                                     {errors.nationality?.message}
@@ -729,7 +436,50 @@ const Overview = () => {
                               </div>
                             </div>
 
-                            {/* Submit Button */}
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label htmlFor="app_type">Application_type</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="app_type"
+                                    name="app_type"
+                                    placeholder="Enter application type"
+                                    {...register("app_type")}
+                                  />
+                                  <p className="text-danger">
+                                    {errors.app_type?.message}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label htmlFor="destination">
+                                    Destination Country
+                                  </label>
+                                  <select
+                                    className="form-select"
+                                    id="destination"
+                                    name="destination"
+                                    {...register("destination")}
+                                    onChange={onChange}
+                                  >
+                                    <option value="">Select a country</option>
+                                    {countries.map((country, index) => (
+                                      <option key={index} value={country}>
+                                        {country}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <p className="text-danger">
+                                    {errors.destination?.message}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
                             <div className="text-center">
                               <button
                                 type="submit"
@@ -749,9 +499,7 @@ const Overview = () => {
                     </div>
                   </div>
 
-                  <h5 className="card-title">
-                    Recent Transactions <span>| This Month</span>
-                  </h5>
+                  <h5 className="card-title">Customers List</h5>
                   <button
                     data-bs-toggle="modal"
                     data-bs-target="#adm"
@@ -769,10 +517,104 @@ const Overview = () => {
                     </div>
                   ) : (
                     <table className="table table-hover datatable" id="myTable">
-                    
-                  
-                 
-                  </table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Fullname</th>
+                          <th>Email</th>
+                          <th>Nationality</th>
+                          <th>Passport Expiry</th>
+                          <th>Telephone</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users && users.length > 0 ? (
+                          users.map((user) => (
+                            <tr key={user.client_id}>
+                              <td>{user.client_id}</td>
+                              <td>{user.fullname}</td>
+                              <td>{user.email}</td>
+                              <td>{user.nationality}</td>
+                              <td>{user.expiry_date}</td>
+                              <td>{user.telephone}</td>
+                              <td>
+                                <span
+                                  className={`badge ${
+                                    user.status === "Active"
+                                      ? "bg-success"
+                                      : user.status === "Pending"
+                                      ? "bg-warning"
+                                      : user.status === "Suspended" ||
+                                        user.status === "Blocked"
+                                      ? "bg-danger"
+                                      : "bg-secondary"
+                                  }`}
+                                >
+                                  {user.status}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="dropdown">
+                                  <i
+                                    className="bi bi-three-dots-vertical"
+                                    id={`dropdownMenuButton${user.client_id}`}
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style={{ cursor: "pointer" }}
+                                  ></i>
+                                  <ul
+                                    className="dropdown-menu"
+                                    aria-labelledby={`dropdownMenuButton${user.client_id}`}
+                                  >
+                                    <li>
+                                      <Link
+                                        to={`/customer_info`}
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleViewProfile(user.client_id)
+                                        }
+                                      >
+                                        <i className="bi bi-eye"></i> View
+                                      </Link>
+                                    </li>
+                                    <li>
+                                      <Link
+                                        to={`#`}
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleViewProfile(user.client_id)
+                                        }
+                                      >
+                                        <i className="bi bi-wallet"></i> Payment
+                                      </Link>
+                                    </li>
+                                    <li>
+                                      <Link
+                                        to={`#`}
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleViewProfile(user.client_id)
+                                        }
+                                      >
+                                        <i className="bi bi-clock"></i>Reminder
+                                      </Link>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="8" className="text-center">
+                              No users found!
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   )}
                 </div>
               </div>
@@ -785,4 +627,4 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+export default Customers;

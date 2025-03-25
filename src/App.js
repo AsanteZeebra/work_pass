@@ -6,6 +6,9 @@ import Create_Account from './components/authentication/singup';
 import Overview from './components/clients/overview';
 import Account_Settings from './components/authentication/account_settings';
 import UsersProfile from './components/authentication/users_profile';
+import Reset_Password from './components/authentication/Reset_password';
+import Customers from './components/clients/customers';
+import Customer_info from './components/clients/customer_info';
 import { useState } from 'react';
 
 
@@ -24,8 +27,11 @@ function App() {
       <Route path="/singup" element={<Create_Account />} />
       <Route path="/Dashbaord" element={<Layout><Dashboard token={token} /></Layout>} />
       <Route path="/components/clients/overview" element={<Layout><Overview token={token} /></Layout>} />
+      <Route path="/components/clients/customers" element={<Layout><Customers token={token} /></Layout>} />
+      <Route path="/customer_info" element={<Layout><Customer_info token={token} /></Layout>} />
       <Route path="/components/authentication/account_settings" element={<Layout><Account_Settings token={token} /></Layout>} />
       <Route path="/components/authentication/users_profile" element={<Layout><UsersProfile token={token} /></Layout>} />
+      <Route path="/Reset_password" element={<Reset_Password />} />
    
     </Routes>
      </Router>
