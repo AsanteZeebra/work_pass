@@ -21,13 +21,18 @@ import { ClipLoader } from "react-spinners";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 import countryList from "country-list";
+import "select2/dist/css/select2.min.css";
+import "select2/dist/js/select2.min.js";
 
-const Customers = ({ onChange }) => {
+
+const Assign_case = ({ onChange }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
+  const [cases, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const countries = countryList.getNames();
+  const [caseData, SetCaseData] = useState(null);
+  const [error, setError] = useState("");
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -54,7 +59,7 @@ const Customers = ({ onChange }) => {
         //console.log("Token is valid:", response.data);
       } catch (error) {
         //console.error("Token validation error:", error);
-        toast.success("Unauthorized",error)
+        toast.success("Unauthorized", error);
         handleLogout();
       }
     };
@@ -90,19 +95,10 @@ const Customers = ({ onChange }) => {
   // Define the modal form validation schema using yup
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
-    email: yup
-      .string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    gender: yup.string().required("Please choose gender"),
-    dob: yup.string().required("please choose date of birth"),
-    telephone: yup.string().required("Please enter telephone number"),
-    passport: yup.string().required("Please enter passport number"),
-    issue_date: yup.string().required("Please choose issue date"),
-    expiry_date: yup.string().required("Choose expiry date"),
-    nationality: yup.string().required("Choose a nationality"),
-    app_type:yup.string().required("Enter Application Type"),
-    destination:yup.string().required("Choose destination country"),
+    case_id: yup.string().required("Please choose a case ID"),
+    assigned_to: yup.string().required("Please assign to someone"),
+    deadline: yup.string().required("Please choose a deadline"),
+    additional: yup.string().required("Additional instructions are required"),
   });
 
   const {
@@ -115,21 +111,16 @@ const Customers = ({ onChange }) => {
   });
 
   const onSubmit = async (data) => {
-    console.log("Form submitted with data:", data); // Debugging
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/Clients/add_client.php",
+        "http://localhost/wp_api/Clients/create_case.php",
         {
           fullname: data.fullname,
-          email: data.email,
-          telephone: data.telephone,
-          passport_no: data.passport,  
-          issue_date: data.issue_date,
-          expiry_date: data.expiry_date,
-          nationality: data.nationality,
-          application_type: data.app_type, 
-          country_of_interest: data.destination, 
+          case_id: data.case_id,
+          assigned_to: data.assigned_to,
+          deadline: data.deadline,
+          additional: data.additional,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -155,12 +146,11 @@ const Customers = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/clients/fetch_customers.php")
+      .get("http://localhost/wp_api/cases/fetch_all_cases.php")
       .then((response) => {
-        setUsers(response.data.users);
-        setLoading(false);
+        setUsers(response.data.cases);
 
-      
+        setLoading(false);
 
         // Initialize DataTable after data is fetched
         $("#myTable").DataTable({
@@ -214,9 +204,37 @@ const Customers = ({ onChange }) => {
     };
   }, []);
 
-  const handleViewProfile = (uid, ) => {
+  const handleViewProfile = (uid) => {
     localStorage.setItem("passport_no", uid);
   };
+
+  useEffect(() => {
+    fetchCaseInfo();
+  }, []);
+
+  const fetchCaseInfo = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/cases/fetch_all_cases.php",
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        SetCaseData(response.data.cases);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case details. Please try again.");
+    }
+  };
+
+
 
   return (
     <>
@@ -238,10 +256,10 @@ const Customers = ({ onChange }) => {
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
                   <div className="modal fade" id="adm" tabIndex="-1">
-                    <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" >
+                    <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                       <div className="modal-content">
                         <div className="modal-header">
-                          <h5 className="modal-title">Add New</h5>
+                          <h5 className="modal-title">Assign Case </h5>
                           <button
                             type="button"
                             className="btn-close"
@@ -254,16 +272,31 @@ const Customers = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-6">
                                 <div className="form-group">
-                                  <label htmlFor="fullname">Full Name</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
+                                  <label htmlFor="fullname">Client</label>
+                                  <select
+                                    className="form-select"
                                     id="fullname"
                                     name="fullname"
-                                    placeholder="Enter your full name"
-                                    title="First name & Last name"
                                     {...register("fullname")}
-                                  />
+                                  >
+                                    <option value="">
+                                      -- Select client --
+                                    </option>
+                                    {caseData && caseData.length > 0 ? (
+                                      caseData.map((client, index) => (
+                                        <option
+                                          key={index}
+                                          value={client.customer_name}
+                                        >
+                                          {client.customer_name}
+                                        </option>
+                                      ))
+                                    ) : (
+                                      <option value="" disabled>
+                                        No client data available
+                                      </option>
+                                    )}
+                                  </select>
                                   <p className="text-danger">
                                     {errors.fullname?.message}
                                   </p>
@@ -272,59 +305,34 @@ const Customers = ({ onChange }) => {
 
                               <div className="col-md-6">
                                 <div className="form-group">
-                                  <label htmlFor="dob">Date of Birth</label>
-                                  <input
-                                    type="date"
-                                    className="form-control"
-                                    id="dob"
-                                    name="dob"
-                                    {...register("dob")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.dob?.message}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="gender">Gender</label>
+                                  <label htmlFor="case_id">Case_ID</label>
                                   <select
                                     className="form-select"
-                                    id="gender"
-                                    name="gender"
-                                    {...register("gender")}
+                                    id="case_id"
+                                    name="case_id"
+                                    {...register("case_id")}
                                   >
                                     <option value="">
-                                      -- Select gender --
+                                      -- Select case_id --
                                     </option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
+                                    {caseData && caseData.length > 0 ? (
+                                      caseData.map((client, index) => (
+                                        <option
+                                          key={index}
+                                          value={client.case_id}
+                                        >
+                                          {client.case_id} -{" "}
+                                          {client.customer_name}
+                                        </option>
+                                      ))
+                                    ) : (
+                                      <option value="" disabled>
+                                        No client data available
+                                      </option>
+                                    )}
                                   </select>
                                   <p className="text-danger">
-                                    {errors.gender?.message}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="telephone">Telephone</label>
-                                  <input
-                                    type="tel"
-                                    className="form-control"
-                                    id="telephone"
-                                    name="telephone"
-                                    placeholder="Enter your phone number"
-                                    pattern="^\+?[0-9\s\-]{7,15}$"
-                                    title="Enter a valid phone number"
-                                    {...register("telephone")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.telephone?.message}
+                                    {errors.case_id?.message}
                                   </p>
                                 </div>
                               </div>
@@ -333,145 +341,60 @@ const Customers = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="passport">
-                                    Passport Number
-                                  </label>
+                                  <label htmlFor="deadline">Deadline</label>
                                   <input
-                                    type="text"
+                                    type="date"
                                     className="form-control"
-                                    id="passport"
-                                    name="passport"
-                                    placeholder="Enter Passport Number"
-                                    pattern="^[A-Z0-9]+$"
-                                    title="Enter a valid passport number"
-                                    {...register("passport")}
+                                    id="deadline"
+                                    name="deadline"
+                                    placeholder="Deadline"
+                                    title="Choose a deadline"
                                   />
                                   <p className="text-danger">
-                                    {errors.passport?.message}
+                                    {errors.deadline?.message}
                                   </p>
                                 </div>
                               </div>
                             </div>
 
                             <div className="row mb-3">
-                              <div className="col-md-6">
+                              <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="issue_date">Issue Date</label>
-                                  <input
-                                    type="date"
-                                    className="form-control"
-                                    id="issue_date"
-                                    name="issue_date"
-                                    {...register("issue_date")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.issue_date?.message}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="expiry_date">
-                                    Expiry Date
-                                  </label>
-                                  <input
-                                    type="date"
-                                    className="form-control"
-                                    id="expiry_date"
-                                    name="expiry_date"
-                                    {...register("expiry_date")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.expiry_date?.message}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="email">Email</label>
-                                  <input
-                                    type="email"
-                                    className="form-control"
-                                    id="email"
-                                    name="email"
-                                    placeholder="Enter your email"
-                                    {...register("email")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.email?.message}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="nationality">
-                                    Nationality
+                                  <label htmlFor="assigned_to">
+                                    Assigned_to
                                   </label>
                                   <select
                                     className="form-select"
-                                    id="nationality"
-                                    name="nationality"
-                                    {...register("nationality")}
-                                    onChange={onChange}
+                                    id="assigned_to"
+                                    name="assigned_to"
+                                    {...register("assigned_to")}
                                   >
-                                    <option value="">Select a country</option>
-                                    {countries.map((country, index) => (
-                                    <option key={index} value={country}>
-                                    {country}
+                                    <option value="">-- Assigned_to --</option>
+                                    <option value="CA12656569665">
+                                      Benjamin Opoku
                                     </option>
-                                    ))}
                                   </select>
                                   <p className="text-danger">
-                                    {errors.nationality?.message}
+                                    {errors.assigned_to?.message}
                                   </p>
                                 </div>
                               </div>
                             </div>
 
                             <div className="row mb-3">
-                              <div className="col-md-6">
+                              <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="app_type">Application_type</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    id="app_type"
-                                    name="app_type"
-                                    placeholder="Enter application type"
-                                    {...register("app_type")}
-                                  />
-                                  <p className="text-danger">
-                                    {errors.app_type?.message}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="destination">
-                                    Destination Country
+                                  <label htmlFor="additional">
+                                    Addition instructions
                                   </label>
-                                  <select
-                                    className="form-select"
-                                    id="destination"
-                                    name="destination"
-                                    {...register("destination")}
-                                    onChange={onChange}
-                                  >
-                                    <option value="">Select a country</option>
-                                    {countries.map((country, index) => (
-                                      <option key={index} value={country}>
-                                        {country}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  <textarea
+                                    className="form-control"
+                                    name="additional"
+                                    placeholder="Additional instruction"
+                                    rows={"5"}
+                                  ></textarea>
                                   <p className="text-danger">
-                                    {errors.destination?.message}
+                                    {errors.additional?.message}
                                   </p>
                                 </div>
                               </div>
@@ -496,7 +419,7 @@ const Customers = ({ onChange }) => {
                     </div>
                   </div>
 
-                  <h5 className="card-title">Customers List</h5>
+                  <h5 className="card-title">Cases List</h5>
                   <button
                     data-bs-toggle="modal"
                     data-bs-target="#adm"
@@ -516,65 +439,61 @@ const Customers = ({ onChange }) => {
                     <table className="table table-hover datatable" id="myTable">
                       <thead>
                         <tr>
-
                           <th>ID</th>
-                          <th>Fullname</th>
-                          <th>Email</th>
-                          <th>Nationality</th>
-                          <th>Passport Expiry</th>
-                          <th>Telephone</th>
+                          <th>Client</th>
+                          <th>Assigned_to</th>
+                          <th>Date</th>
                           <th>Status</th>
-                          <th>Actions</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {users && users.length > 0 ? (
-                          users.map((user) => (
-                            <tr key={user.client_id}>
-                              <td>{user.client_id}</td>
-                              <td>{user.fullname}</td>
-                              <td>{user.email}</td>
-                              <td>{user.nationality}</td>
-                              <td>{user.expiry_date}</td>
-                              <td>{user.telephone}</td>
+                        {cases && cases.length > 0 ? (
+                          cases.map((casses) => (
+                            <tr key={casses.case_id}>
+                              <td>{casses.case_id}</td>
+                              <td>{casses.customer_name}</td>
+                              <td>{casses.assigned_to}</td>
+                              <td>{casses.date_created}</td>
                               <td>
                                 <span
                                   className={`badge ${
-                                    user.status === "Active"
+                                    casses.status === "Complete"
                                       ? "bg-success"
-                                      : user.status === "Pending"
+                                      : casses.status === "Pending"
                                       ? "bg-warning"
-                                      : user.status === "Suspended" ||
-                                        user.status === "Blocked"
+                                      : casses.status === "Suspended" ||
+                                        casses.status === "Cancelled" ||
+                                        casses.status === "Rejected"
                                       ? "bg-danger"
                                       : "bg-secondary"
                                   }`}
                                 >
-                                  {user.status}
+                                  {casses.status}
                                 </span>
                               </td>
                               <td>
                                 <div className="dropdown">
                                   <i
                                     className="bi bi-three-dots-vertical"
-                                    id={`dropdownMenuButton${user.client_id}`}
+                                    id={`dropdownMenuButton${casses.case_id}`}
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                     style={{ cursor: "pointer" }}
                                   ></i>
                                   <ul
                                     className="dropdown-menu"
-                                    aria-labelledby={`dropdownMenuButton${user.client_id}`}
+                                    aria-labelledby={`dropdownMenuButton${casses.case_id}`}
                                   >
                                     <li>
                                       <Link
                                         to={`/customer_info`}
                                         className="dropdown-item"
                                         onClick={() =>
-                                          handleViewProfile(user.Passport_no)
+                                          handleViewProfile(casses.case_id)
                                         }
                                       >
-                                        <i className="bi bi-eye"></i> View
+                                        Track
                                       </Link>
                                     </li>
                                     <li>
@@ -582,10 +501,10 @@ const Customers = ({ onChange }) => {
                                         to={`#`}
                                         className="dropdown-item"
                                         onClick={() =>
-                                          handleViewProfile(user.client_id)
+                                          handleViewProfile(casses.case_id)
                                         }
                                       >
-                                        <i className="bi bi-wallet"></i> Transactions
+                                        Assign Case
                                       </Link>
                                     </li>
                                     <li>
@@ -593,10 +512,10 @@ const Customers = ({ onChange }) => {
                                         to={`#`}
                                         className="dropdown-item"
                                         onClick={() =>
-                                          handleViewProfile(user.client_id)
+                                          handleViewProfile(casses.case_id)
                                         }
                                       >
-                                        <i className="bi bi-clock"></i>Assign  Case
+                                        Remove Case
                                       </Link>
                                     </li>
                                   </ul>
@@ -625,4 +544,4 @@ const Customers = ({ onChange }) => {
   );
 };
 
-export default Customers;
+export default Assign_case;

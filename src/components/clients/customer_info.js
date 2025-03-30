@@ -70,6 +70,71 @@ const CustomerInfo = () => {
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
 
+
+  
+
+  const [passportNo, setPassportNo] = useState("");
+  const [caseData, setCaseData] = useState(null);
+  const [customerData,setCustomerData]=useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Get passport number from localStorage
+    const storedPassportNo = localStorage.getItem("passport_no");
+    if (storedPassportNo) {
+      setPassportNo(storedPassportNo);
+      fetchCaseDetails(storedPassportNo);
+      fetchcustomerDetails(storedPassportNo);
+    } else {
+      setError("Passport number not found in localStorage.");
+    }
+  }, []);
+
+  const fetchCaseDetails = async (passportNo) => {
+    try {
+      const response = await axios.post(
+        "http://localhost/wp_api/Clients/fetch_cases.php",
+        { passport_no: passportNo }, // Send as POST body
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.data.status === "success") {
+        setCaseData(response.data.case);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case details. Please try again.");
+    }
+  };
+
+  const fetchcustomerDetails = async (passportNo) => {
+    try {
+      const response = await axios.post("http://localhost/wp_api/Clients/fetch_customer_info.php",
+        { passport_no: passportNo }, // Send as POST body
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.data.status === "success") {
+        setCustomerData(response.data.case);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case details. Please try again.");
+    }
+  };
+  
+
+
   return (
     <>
       <div className="pagetitle">
@@ -86,89 +151,150 @@ const CustomerInfo = () => {
       <div className="row">
         <div className="col-lg-8">
           <div className="card overflow-auto">
+          {loading ? (
+                    <div className="text-center">
+                      <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  ) : (
             <div className="card-body">
+              {caseData ?(
+
+
+           
               <div style={{ margin: "30px" }}>
                 <table className="table table-borderless">
                   <tbody>
                     <tr>
                       <td>
-                        <h4 style={{ fontWeight: "bold" }}>Customer ID: 2565989841D</h4>
+                        <h4 style={{ fontWeight: "bold",fontSize:"20px" }}>Case ID: {caseData.case_id}</h4>
                       </td>
                       <td>
-                        <span className="badge bg-warning">Payment Pending</span>
+                        <span className="badge bg-warning">{caseData.case_attendant}</span>
                       </td>
                       <td>
-                        <span className="badge bg-success">Active</span>
+                        <span className="badge bg-success">{caseData.status}</span>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-                <span>Created at: 23rd March, 2025 2:15:02pm</span>
+                <span style={{fontSize: "13px"}}>Created at: 23rd March, 2025 2:15:02pm</span>
                 <hr />
               </div>
-
+   ): (
+    <p> No case data available.</p>
+  )}
               <div className="accordion accordion-flush" id="accordionFlushExample">
+              {caseData ? (
                 <div className="accordion-item">
                   <h2 className="accordion-header" id="flush-headingOne">
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                   <b> Processing</b> <span></span>
-                    </button>
+                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                 <p> <b> {caseData.tittle}</b>  <small style={{fontSize: "10px"}}>{caseData.date_updated}</small></p>
+                  </button>
                   </h2>
                   <div id="flush-collapseOne" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                    <div className="accordion-body">
-                        <p >Passport, polic clearance and passport together with the order form has been submitted successflly for further processing</p>
-                         </div>
-                 
-                  </div>
-                </div>
-                <div className="accordion-item">
-                  <h2 className="accordion-header" id="flush-headingTwo">
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                   <b> Documens verification</b>
-                    </button>
-                  </h2>
-                  <div id="flush-collapseTwo" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                    <div className="accordion-body">
-                        <p>Documens has been forward to additioal verifacation and arrangemnt and </p>
+                  <div className="accordion-body">
+                        <p >{caseData.message}</p>
                     </div>
                   </div>
                 </div>
-           <div className="col-sm-12">
-           <button className="btn btn-outline-primary" style={{width: "100%"}}>Add update</button>
-           </div>
+                 ) : (
+                  <p>No case data available.</p>
+                )}
                
+
+               <div className="accordion-item">
+                  <h2 className="accordion-header" id="flush-headingTwo">
+                    <button className="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseOne">
+                   <strong>  Transactions</strong>
+                    </button>
+                  </h2>
+                  <div id="flush-collapseTwo" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                   <table className="table ">
+                    <thead className="table-light">
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                   </thead>
+                   <tbody>
+                    <tr>
+                      <td>PM1255D698</td>
+                      <td>23rd March, 2025</td>
+                      <td>$200</td>
+                      <td>Application Fee</td>
+                      <td><span className="badge bg-success">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td>PM1255D698</td>
+                      <td>23rd March, 2025</td>
+                      <td>$200</td>
+                      <td>Application Fee</td>
+                      <td><span className="badge bg-warning">Pending</span></td>
+                    </tr>
+                    <tr>
+                      <td>PM1255D698</td>
+                      <td>23rd March, 2025</td>
+                      <td>$200</td>
+                      <td>Application Fee</td>
+                      <td><span className="badge bg-danger">Deined</span></td>
+                    </tr>
+                    <tr>
+                      <td>PM1255D698</td>
+                      <td>23rd March, 2025</td>
+                      <td>$200</td>
+                      <td>Application Fee</td>
+                      <td><span className="badge bg-success">Paid</span></td>
+                    </tr>               
+                    </tbody>
+                   </table>
+                 
+                  </div>
+                </div>
               </div>
+
+              <button className="btn btn-outline-primary " title="Send Updates Reminder to Customer">Send Reminder</button> <button className="btn btn-outline-warning" title="Suspend Case till further Notice">Suspend</button>
             </div>
+              )}
           </div>
         </div>
 
         <div className="col-lg-4">
           <div className="card overflow-auto">
+          {customerData ?(
             <div className="card-body">
               <div className="mb-3">
-                <b>Notes</b>
-                <p>Sent for validation</p>
+                <b><i className="bi bi-globe"></i> Destination</b>
+                <p>{customerData.country_of_interest}</p>
               </div>
               <hr />
               <div className="mb-3">
-                <b>Customer</b>
-                <p>Asante Michael</p>
-                <p>G23654789</p>
-                <p>2 cases in progress</p>
+                <b><i className="bi bi-person-bounding-box"></i> Customer</b>
+               <strong> <h3>{customerData.fullname} </h3></strong>
+                <p>{customerData.Passport_no}</p>
+                
               </div>
               <hr />
               <div className="mb-3">
-                <b>Contact Info</b>
-                <p>nanakweku608@gmail.com</p>
-                <p>+233531641798</p>
+                <b><i className="bi bi-person-rolodex"></i> Contact Info</b>
+                <p>{customerData.email}</p>
+                <p>{customerData.telephone}</p>
               </div>
               <hr />
               <div className="mb-3">
-                <b>Address</b>
-                <p>GZ-162-2444 Naomi Street</p>
-                <p>Kumasi Tanoso</p>
+                <b><i className="bi bi-file-earmark-medical"></i> Application Type</b>
+                <p>{customerData.application_type}</p>
+               
               </div>
             </div>
+             ) : (
+              <p>No client data available.</p>
+            )}
+           
           </div>
         </div>
       </div>

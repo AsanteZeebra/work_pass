@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+
 const Sidebar = () => {
   return (
     <>
@@ -29,14 +30,29 @@ const Sidebar = () => {
                   <i className="bi bi-circle"></i><span>Manage Client</span>
                 </Link>
               </li>
+             
+              
+            </ul>
+          </li>
+
+          <li className="nav-item">
+            <Link className="nav-link collapsed" data-bs-target="#employees-nav" data-bs-toggle="collapse" to="#">
+              <i className="bi bi-person-vcard"></i><span>Employees</span><i className="bi bi-chevron-down ms-auto"></i>
+            </Link>
+            <ul id="employees-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="components-accordion.html">
-                  <i className="bi bi-circle"></i><span>Blacklist</span>
+                <Link to="/components/employees/employee_list">
+                  <i className="bi bi-circle"></i><span>Employees List</span>
                 </Link>
               </li>
               <li>
-                <Link to="components-accordion.html">
-                  <i className="bi bi-circle"></i><span>Support</span>
+                <Link to="">
+                  <i className="bi bi-circle"></i><span>Payroll</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="">
+                  <i className="bi bi-circle"></i><span>Timesheet</span>
                 </Link>
               </li>
             </ul>
@@ -44,17 +60,17 @@ const Sidebar = () => {
 
           <li className="nav-item">
             <Link className="nav-link collapsed" data-bs-target="#applications-nav" data-bs-toggle="collapse" to="#">
-              <i className="bi bi-journal-text"></i><span>Applications</span><i className="bi bi-chevron-down ms-auto"></i>
+              <i className="bi bi-file-earmark-text"></i><span>Cases</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="applications-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="forms-elements.html">
-                  <i className="bi bi-circle"></i><span>Applications List</span>
+                <Link to="/components/cases/assign_case">
+                  <i className="bi bi-circle"></i><span>Case List</span>
                 </Link>
               </li>
               <li>
-                <Link to="forms-layouts.html">
-                  <i className="bi bi-circle"></i><span>Manage Applications</span>
+                <Link to="">
+                  <i className="bi bi-circle"></i><span>Cases History</span>
                 </Link>
               </li>
             </ul>
@@ -62,7 +78,7 @@ const Sidebar = () => {
 
           <li className="nav-item">
             <Link className="nav-link collapsed" data-bs-target="#passports-nav" data-bs-toggle="collapse" to="#">
-              <i className="bi bi-layout-text-window-reverse"></i><span>Passports</span><i className="bi bi-chevron-down ms-auto"></i>
+              <i className="bi bi-passport"></i><span>Passports</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="passports-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
@@ -85,7 +101,7 @@ const Sidebar = () => {
 
           <li className="nav-item">
             <Link className="nav-link collapsed" data-bs-target="#payment-nav" data-bs-toggle="collapse" to="#">
-              <i className="bi bi-bar-chart"></i><span>Payment</span><i className="bi bi-chevron-down ms-auto"></i>
+              <i className="bi bi-wallet2"></i><span>Payment</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="payment-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
@@ -108,7 +124,7 @@ const Sidebar = () => {
 
           <li className="nav-item">
             <Link className="nav-link collapsed" data-bs-target="#appointment-nav" data-bs-toggle="collapse" to="#">
-              <i className="bi bi-gem"></i><span>Appointment</span><i className="bi bi-chevron-down ms-auto"></i>
+              <i className="bi bi-calendar2-week"></i><span>Appointment</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="appointment-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
@@ -131,7 +147,7 @@ const Sidebar = () => {
 
           <li className="nav-item">
             <Link className="nav-link collapsed" data-bs-target="#access-control-nav" data-bs-toggle="collapse" to="#">
-              <i className="bi bi-gem"></i><span>Access control</span><i className="bi bi-chevron-down ms-auto"></i>
+              <i className="bi bi-shield-lock"></i><span>Access control</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="access-control-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
@@ -156,7 +172,7 @@ const Sidebar = () => {
 
           <li class="nav-item">
         <Link class="nav-link collapsed" to="pages-faq.html">
-          <i class="bi bi-power-off"></i>
+          <i class="bi bi-power"></i>
           <span>Logout</span>
         </Link>
       </li>

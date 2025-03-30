@@ -22,8 +22,6 @@ import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 
 const Overview = () => {
-
-
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
@@ -49,7 +47,7 @@ const Overview = () => {
           }
         );
 
-        console.log("Token is valid:", response.data);
+        //console.log("Token is valid:", response.data);
       } catch (error) {
         console.error("Token validation error:", error);
         handleLogout();
@@ -84,9 +82,6 @@ const Overview = () => {
     }
   }, [token, navigate, handleLogout]); // ✅ Now handleLogout is included
 
-  {
-    /* form validation and submission */
-  }
   // Define the modal form validation schema using yup
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
@@ -138,6 +133,7 @@ const Overview = () => {
         setLoading(false);
         reset(); // Reset the form after successful submission
         // ✅ Manually close modal without Bootstrap JS
+        window.location.reload();
       } else {
         toast.error(response.data.message, { position: "top-right" });
         setLoading(false);
@@ -191,24 +187,7 @@ const Overview = () => {
                 return `<span class="badge ${badgeClass}">${data}</span>`;
               },
             },
-            {
-              data: null,
-              title: "Actions",
-              render: function (data, type, row) {
-                return `
-                  <div class="dropdown">
-                    <i class="bi bi-three-dots-vertical"
-                       data-bs-toggle="dropdown"
-                       style="cursor: pointer;"></i>
-                    <ul class="dropdown-menu">
-                      <li><a href=""
-                             class="dropdown-item"><i class="bi bi-eye"></i> View</a></li>
-                      <li><a href="/users-edit/${row.client_id}"
-                             class="dropdown-item"><i class="bi bi-gear"></i> Settings</a></li>
-                    </ul>
-                  </div>`;
-              },
-            },
+           
           ],
           buttons: [
             {
@@ -240,6 +219,71 @@ const Overview = () => {
       }
     };
   }, []);
+
+  const [error, setError] = useState("");
+  const [countData, SetCountData] = useState(null);
+  const [PercentageData, SetPercentageData] = useState(null);
+
+  const fetchcount = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/Clients/count_cases.php",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        // Set countData with all counts
+        SetCountData({
+          all_cases: response.data.all_cases,
+          active_cases: response.data.active_cases,
+          pending_cases: response.data.pending_cases,
+          complete_cases: response.data.complete_cases,
+          rejected_cases: response.data.rejected_cases,
+        });
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case data. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    fetchcount();
+    fecthPercentage();
+  }, []);
+
+  const fecthPercentage = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/Clients/calculate_cases_percentages.php",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        SetPercentageData({
+          active: response.data.active?.percentage_change || 0,
+          pending: response.data.pending?.percentage_change || 0,
+          complete: response.data.complete?.percentage_change || 0,
+          rejected: response.data.rejected?.percentage_change || 0,
+        });
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching percentage data:", error);
+      setError("Error fetching percentage data. Please try again.");
+    }
+  };
+
   return (
     <>
       <div className="pagetitle">
@@ -258,50 +302,54 @@ const Overview = () => {
           <div className="row">
             <div className="col-xxl-3">
               <div className="card info-card sales-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">
-                    Active <span>| All</span>
+                    Active <span>| Cases</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i className="bi bi-check2-circle"></i>
                     </div>
                     <div className="ps-3">
-                      <h6>145</h6>
-                      <span className="text-success small pt-1 fw-bold">
-                        12%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "#269746" }}
-                        ></i>
-                      </span>
+                      {countData ? (
+                        <h6>{countData.all_cases}</h6>
+                      ) : (
+                        <p>No case data available.</p>
+                      )}
+
+
+                        {PercentageData &&
+                        PercentageData.active !== undefined ? (
+                          <span className="text-success small pt-1 fw-bold">
+                            {PercentageData.active}%
+                          </span>
+                        ) : (
+                          <p>No percentage data available.</p>
+                        )}
+
+                        {PercentageData && PercentageData.active > 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-up-right-square"
+                              style={{ color: "#269746" }}
+                            ></i>
+                          </span>
+                        ) : PercentageData && PercentageData.active < 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-down-right-square"
+                              style={{ color: "red" }}
+                            ></i>
+                          </span>
+                        ) : (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-dash-square"
+                              style={{ color: "gray" }}
+                            ></i>
+                          </span>
+                        )}
+                    
                     </div>
                   </div>
                 </div>
@@ -309,50 +357,54 @@ const Overview = () => {
             </div>
             <div className="col-xxl-3">
               <div className="card info-card revenue-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">
-                    Pending <span>| All</span>
+                    Pending <span>| Cases</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i className="bi bi-clock-history"></i>
                     </div>
                     <div className="ps-3">
-                      <h6>264</h6>
-                      <span className="text-warning small pt-1 fw-bold">
-                        8%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-down-right-square"
-                          style={{ color: "red" }}
-                        ></i>
-                      </span>
+                      {countData ? (
+                        <h6>{countData.pending_cases}</h6>
+                      ) : (
+                        <p>No case data available.</p>
+                      )}
+
+
+                        {PercentageData &&
+                        PercentageData.pending !== undefined ? (
+                          <span className="text-success small pt-1 fw-bold">
+                            {PercentageData.pending}%
+                          </span>
+                        ) : (
+                          <p>No percentage data available.</p>
+                        )}
+
+                        {PercentageData && PercentageData.pending > 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-up-right-square"
+                              style={{ color: "#269746" }}
+                            ></i>
+                          </span>
+                        ) : PercentageData && PercentageData.pending < 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-down-right-square"
+                              style={{ color: "red" }}
+                            ></i>
+                          </span>
+                        ) : (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-dash-square"
+                              style={{ color: "gray" }}
+                            ></i>
+                          </span>
+                        )}
+                    
                     </div>
                   </div>
                 </div>
@@ -360,50 +412,54 @@ const Overview = () => {
             </div>
             <div className="col-xxl-3">
               <div className="card info-card revenue-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">
-                    Completed <span>| This Month</span>
+                    Completed <span>| Cases</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i className="bi bi-check-circle"></i>
                     </div>
                     <div className="ps-3">
-                      <h6>3,264</h6>
-                      <span className="text-success small pt-1 fw-bold">
-                        45%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "#269746" }}
-                        ></i>
-                      </span>
+                      {countData ? (
+                        <h6>{countData.complete_cases}</h6>
+                      ) : (
+                        <p>No case data available.</p>
+                      )}
+
+
+                        {PercentageData &&
+                        PercentageData.complete !== undefined ? (
+                          <span className="text-success small pt-1 fw-bold">
+                            {PercentageData.complete}%
+                          </span>
+                        ) : (
+                          <p>No percentage data available.</p>
+                        )}
+
+                        {PercentageData && PercentageData.complete > 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-up-right-square"
+                              style={{ color: "#269746" }}
+                            ></i>
+                          </span>
+                        ) : PercentageData && PercentageData.complete < 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-down-right-square"
+                              style={{ color: "red" }}
+                            ></i>
+                          </span>
+                        ) : (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-dash-square"
+                              style={{ color: "gray" }}
+                            ></i>
+                          </span>
+                        )}
+                    
                     </div>
                   </div>
                 </div>
@@ -411,50 +467,56 @@ const Overview = () => {
             </div>
             <div className="col-xxl-3">
               <div className="card info-card customers-card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">
-                    Rejected <span>| This Year</span>
+                    Rejected <span>| Cases</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i className="bi bi-x-circle"></i>
                     </div>
                     <div className="ps-3">
-                      <h6>15</h6>
-                      <span className="text-danger small pt-1 fw-bold">
-                        79%
-                      </span>{" "}
-                      <span className="text-muted small pt-2 ps-1">
-                        <i
-                          className="bi bi-arrow-up-right-square"
-                          style={{ color: "red" }}
-                        ></i>
-                      </span>
+                      {countData ? (
+                        <h6>{countData.rejected_cases}</h6>
+                      ) : (
+                        <p>No case data available.</p>
+                      )}
+
+                      <div className="ps-3">
+                        {PercentageData &&
+                        PercentageData.rejected !== undefined ? (
+                          <span className="text-success small pt-1 fw-bold">
+                            {PercentageData.rejected}%
+                          </span>
+                        ) : (
+                          <p>No percentage data available.</p>
+                        )}
+
+                        {PercentageData && PercentageData.rejected > 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-up-right-square"
+                              style={{ color: "#269746" }}
+                            ></i>
+                          </span>
+                        ) : PercentageData && PercentageData.rejected < 0 ? (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-arrow-down-right-square"
+                              style={{ color: "red" }}
+                            ></i>
+                          </span>
+                        ) : (
+                          <span className="text-muted small pt-2 ps-1">
+                            <i
+                              className="bi bi-dash-square"
+                              style={{ color: "gray" }}
+                            ></i>
+                          </span>
+                        )}
+                      </div>
+
+
                     </div>
                   </div>
                 </div>
@@ -462,31 +524,6 @@ const Overview = () => {
             </div>
             <div className="col-12">
               <div className="card">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">
                     Reports <span>/This Month</span>
@@ -497,38 +534,13 @@ const Overview = () => {
             </div>
             <div className="col-12">
               <div className="card recent-sales overflow-auto">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown">
-                    <i className="bi bi-three-dots"></i>
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        Today
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Month
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="#">
-                        This Year
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
                 {/*Table card */}
                 <div className="card-body">
                   <div className="modal fade" id="adm" tabIndex="-1">
                     <div className="modal-dialog modal-lg modal-dialog-centered">
                       <div className="modal-content">
                         <div className="modal-header">
-                          <h5 className="modal-title">Add New</h5>
+                          <h5  className="modal-title">Add New</h5>
                           <button
                             type="button"
                             className="btn-close"
@@ -750,15 +762,16 @@ const Overview = () => {
                   </div>
 
                   <h5 className="card-title">
-                    Recent Transactions <span>| This Month</span>
+                    Customers <span>| List</span>
                   </h5>
-                  <button
+                  <button hidden
                     data-bs-toggle="modal"
                     data-bs-target="#adm"
                     className="btn btn-outline-primary btn-sm"
                     style={{ float: "right" }}
                   >
-                    <i className="bi bi-person-plus"></i> Add New
+                    <i className="bi bi-perso0
+                    3n-plus"></i> Add New
                   </button>
 
                   {loading ? (
@@ -768,11 +781,10 @@ const Overview = () => {
                       </div>
                     </div>
                   ) : (
-                    <table className="table table-hover datatable" id="myTable">
-                    
-                  
-                 
-                  </table>
+                    <table
+                      className="table table-hover datatable"
+                      id="myTable"
+                    ></table>
                   )}
                 </div>
               </div>

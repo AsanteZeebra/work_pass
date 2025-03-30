@@ -31,7 +31,7 @@ const Dashboard = () => {
           }
         );
 
-        console.log('Token is valid:', response.data);
+        //console.log('Token is valid:', response.data);
       } catch (error) {
         console.error('Token validation error:', error);
         handleLogout();
