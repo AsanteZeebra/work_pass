@@ -21,14 +21,11 @@ import { ClipLoader } from "react-spinners";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 
-
-const Employees = ({ onChange }) => {
-
+const Payroll = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [employees, SetEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
-  
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -55,7 +52,7 @@ const Employees = ({ onChange }) => {
         //console.log("Token is valid:", response.data);
       } catch (error) {
         //console.error("Token validation error:", error);
-        toast.success("Unauthorized",error)
+        toast.success("Unauthorized", error);
         handleLogout();
       }
     };
@@ -88,11 +85,6 @@ const Employees = ({ onChange }) => {
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
 
- 
-
-
- 
-
   useEffect(() => {
     setLoading(true);
     axios
@@ -100,8 +92,6 @@ const Employees = ({ onChange }) => {
       .then((response) => {
         SetEmployees(response.data.employees);
         setLoading(false);
-
-      
 
         // Initialize DataTable after data is fetched
         $("#myTable").DataTable({
@@ -155,37 +145,123 @@ const Employees = ({ onChange }) => {
     };
   }, []);
 
-  
-
   return (
     <>
       <div className="pagetitle">
-        <h1>Employees</h1>
+        <h1>Payroll</h1>
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <a href="index.html">Dashboard</a>
+              <a href="index.html">Employees</a>
             </li>
-            <li className="breadcrumb-item active">employees</li>
+            <li className="breadcrumb-item active">payroll</li>
           </ol>
         </nav>
       </div>
       <div className="row">
+        {/* Card 1: Total Paid */}
+        <div className="col-xxl-3 col-md-6">
+          <div className="card info-card sales-card">
+            <div className="card-body">
+              <h5 className="card-title">
+                Total Paid <span>| This Month</span>
+              </h5>
+
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-arrow-up-circle"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>145</h6>
+                  <span className="text-success small pt-1 fw-bold">
+                    12%
+                  </span>{" "}
+                  <span className="text-muted small pt-2 ps-1">increase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Pending to pay */}
+        <div className="col-xxl-3 col-md-6">
+          <div className="card info-card sales-card">
+            <div className="card-body">
+              <h5 className="card-title">
+                Pending <span>| This Month</span>
+              </h5>
+
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-arrow-clockwise"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>145</h6>
+                  <span className="text-success small pt-1 fw-bold">
+                    12%
+                  </span>{" "}
+                  <span className="text-muted small pt-2 ps-1">increase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Total Employees */}
+        <div className="col-xxl-3 col-md-6">
+          <div className="card info-card sales-card">
+            <div className="card-body">
+              <h5 className="card-title">
+                Employees <span>| This Month</span>
+              </h5>
+
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-people"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>145</h6>
+                  <span className="text-success small pt-1 fw-bold">
+                    12%
+                  </span>{" "}
+                  <span className="text-muted small pt-2 ps-1">increase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Benefits */}
+        <div className="col-xxl-3 col-md-6">
+          <div className="card info-card sales-card">
+            <div className="card-body">
+              <h5 className="card-title">
+                Benefits <span>| This Month</span>
+              </h5>
+
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-piggy-bank"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>145</h6>
+                  <span className="text-success small pt-1 fw-bold">
+                    12%
+                  </span>{" "}
+                  <span className="text-muted small pt-2 ps-1">increase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="col-lg-12">
           <div className="row">
             <div className="col-12">
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
-                
                   <h5 className="card-title">Employee List</h5>
-                  <Link to={`/add_employee`}
-                  
-                    className="btn btn-outline-primary btn-sm"
-                    style={{ float: "right" }}
-                  >
-                    <i className="bi bi-person-plus"></i> Add Employee
-                  </Link>
-
+                 
                   {loading ? (
                     <div className="text-center">
                       <div className="spinner-border" role="status">
@@ -196,7 +272,6 @@ const Employees = ({ onChange }) => {
                     <table className="table table-hover datatable" id="myTable">
                       <thead>
                         <tr>
-
                           <th>ID</th>
                           <th>Fullname</th>
                           <th>Email</th>
@@ -225,7 +300,7 @@ const Employees = ({ onChange }) => {
                                       : employee.status === "Pending"
                                       ? "bg-warning"
                                       : employee.status === "Suspended" ||
-                                      employee.status === "Blocked"
+                                        employee.status === "Blocked"
                                       ? "bg-danger"
                                       : "bg-secondary"
                                   }`}
@@ -247,25 +322,13 @@ const Employees = ({ onChange }) => {
                                     aria-labelledby={`dropdownMenuButton`}
                                   >
                                     <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                      
-                                      >
-                                        <i className="bi bi-clipboard-data"></i> Performance
+                                      <Link to={`#`} className="dropdown-item">
+                                        <i className="bi bi-arrow-right-square"></i>{" "}
+                                        Pay Employee
                                       </Link>
                                     </li>
 
                                    
-                                    <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                       
-                                      >
-                                        <i className="bi bi-clock"></i>TimeSheet
-                                      </Link>
-                                    </li>
                                   </ul>
                                 </div>
                               </td>
@@ -292,4 +355,4 @@ const Employees = ({ onChange }) => {
   );
 };
 
-export default Employees;
+export default Payroll;

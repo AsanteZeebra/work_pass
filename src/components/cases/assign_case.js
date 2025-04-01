@@ -32,6 +32,7 @@ const Assign_case = ({ onChange }) => {
   const [loading, setLoading] = useState(false);
   const countries = countryList.getNames();
   const [caseData, SetCaseData] = useState(null);
+  const [staffData, setStaffData] = useState(null);
   const [error, setError] = useState("");
 
   // Memoize handleLogout to prevent re-creation
@@ -210,6 +211,7 @@ const Assign_case = ({ onChange }) => {
 
   useEffect(() => {
     fetchCaseInfo();
+    fetchStaffInfo();
   }, []);
 
   const fetchCaseInfo = async () => {
@@ -234,18 +236,40 @@ const Assign_case = ({ onChange }) => {
     }
   };
 
+  const fetchStaffInfo = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/employees/fetch_employees.php",
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        setStaffData(response.data.employees);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching emploeyee details. Please try again.");
+    }
+  };
+
 
 
   return (
     <>
       <div className="pagetitle">
-        <h1>Clients</h1>
+        <h1>Cases</h1>
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <a href="index.html">Dashboard</a>
+              <a href="index.html">Cases</a>
             </li>
-            <li className="breadcrumb-item active">customers</li>
+            <li className="breadcrumb-item active">case_list</li>
           </ol>
         </nav>
       </div>
@@ -272,7 +296,9 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-6">
                                 <div className="form-group">
-                                  <label htmlFor="fullname">Client</label>
+                                  <label htmlFor="fullname" style={{marginTop: "10px", marginBottom: "10px"}}><b>Client</b></label>
+                                  <span className="text-danger">*</span>
+                                  
                                   <select
                                     className="form-select"
                                     id="fullname"
@@ -305,7 +331,8 @@ const Assign_case = ({ onChange }) => {
 
                               <div className="col-md-6">
                                 <div className="form-group">
-                                  <label htmlFor="case_id">Case_ID</label>
+                                  <label htmlFor="case_id" style={{marginTop: "10px", marginBottom: "10px"}}><b>Case_id</b></label>
+                                  <span className="text-danger">*</span>
                                   <select
                                     className="form-select"
                                     id="case_id"
@@ -341,7 +368,8 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="deadline">Deadline</label>
+                                  <label htmlFor="deadline" style={{marginTop: "10px", marginBottom: "10px"}}><b>Deadline</b></label>
+                                  <span className="text-danger">*</span>
                                   <input
                                     type="date"
                                     className="form-control"
@@ -360,8 +388,9 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="assigned_to">
-                                    Assigned_to
+                                  <label htmlFor="assigned_to" style={{marginTop: "10px", marginBottom: "10px"}}>
+                                  <b> Assigned_to</b>
+                                  <span className="text-danger">*</span>
                                   </label>
                                   <select
                                     className="form-select"
@@ -370,9 +399,21 @@ const Assign_case = ({ onChange }) => {
                                     {...register("assigned_to")}
                                   >
                                     <option value="">-- Assigned_to --</option>
-                                    <option value="CA12656569665">
-                                      Benjamin Opoku
-                                    </option>
+                                    {staffData && staffData.length > 0 ? (
+                                      staffData.map((staff, index) => (
+                                        <option
+                                          key={index}
+                                          value={staff.fullname}
+                                        >
+                                         
+                                          {staff.fullname}
+                                        </option>
+                                      ))
+                                    ) : (
+                                      <option value="" disabled>
+                                        No employee data available
+                                      </option>
+                                    )}
                                   </select>
                                   <p className="text-danger">
                                     {errors.assigned_to?.message}
@@ -384,8 +425,8 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="additional">
-                                    Addition instructions
+                                  <label htmlFor="additional" style={{marginTop: "10px", marginBottom: "10px"}}>
+                                   <b> Addition instructions</b>
                                   </label>
                                   <textarea
                                     className="form-control"

@@ -356,14 +356,14 @@ const Overview = () => {
               </div>
             </div>
             <div className="col-xxl-3">
-              <div className="card info-card revenue-card">
+              <div className="card info-card sales-card">
                 <div className="card-body">
                   <h5 className="card-title">
                     Pending <span>| Cases</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-clock-history"></i>
+                      <i className="bi bi-arrow-clockwise"></i>
                     </div>
                     <div className="ps-3">
                       {countData ? (
@@ -411,7 +411,7 @@ const Overview = () => {
               </div>
             </div>
             <div className="col-xxl-3">
-              <div className="card info-card revenue-card">
+              <div className="card info-card sales-card">
                 <div className="card-body">
                   <h5 className="card-title">
                     Completed <span>| Cases</span>
@@ -466,7 +466,7 @@ const Overview = () => {
               </div>
             </div>
             <div className="col-xxl-3">
-              <div className="card info-card customers-card">
+              <div className="card info-card sales-card">
                 <div className="card-body">
                   <h5 className="card-title">
                     Rejected <span>| Cases</span>

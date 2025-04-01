@@ -20,13 +20,13 @@ const Sidebar = () => {
             </Link>
             <ul id="clients-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="/components/clients/overview">
+                <Link to="/overview">
                   <i className="bi bi-circle"></i><span>Overview</span>
                 </Link>
               </li>
              
               <li>
-                <Link to="/components/clients/customers">
+                <Link to="/customers">
                   <i className="bi bi-circle"></i><span>Manage Client</span>
                 </Link>
               </li>
@@ -41,12 +41,12 @@ const Sidebar = () => {
             </Link>
             <ul id="employees-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="/components/employees/employee_list">
+                <Link to="/employee_list">
                   <i className="bi bi-circle"></i><span>Employees List</span>
                 </Link>
               </li>
               <li>
-                <Link to="">
+                <Link to="/payroll">
                   <i className="bi bi-circle"></i><span>Payroll</span>
                 </Link>
               </li>
@@ -64,7 +64,7 @@ const Sidebar = () => {
             </Link>
             <ul id="applications-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="/components/cases/assign_case">
+                <Link to="/assign_case">
                   <i className="bi bi-circle"></i><span>Case List</span>
                 </Link>
               </li>

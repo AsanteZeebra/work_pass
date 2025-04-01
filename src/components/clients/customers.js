@@ -162,6 +162,10 @@ const Customers = ({ onChange }) => {
 
       
 
+        // Destroy previous DataTable instance if it exists
+        if ($.fn.DataTable.isDataTable("#myTable")) {
+          $("#myTable").DataTable().destroy();
+        }
         // Initialize DataTable after data is fetched
         $("#myTable").DataTable({
           responsive: true,
@@ -227,7 +231,7 @@ const Customers = ({ onChange }) => {
             <li className="breadcrumb-item">
               <a href="index.html">Dashboard</a>
             </li>
-            <li className="breadcrumb-item active">customers</li>
+            <li className="breadcrumb-item active">manage_clients</li>
           </ol>
         </nav>
       </div>
@@ -577,28 +581,8 @@ const Customers = ({ onChange }) => {
                                         <i className="bi bi-eye"></i> View
                                       </Link>
                                     </li>
-                                    <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                        onClick={() =>
-                                          handleViewProfile(user.client_id)
-                                        }
-                                      >
-                                        <i className="bi bi-wallet"></i> Transactions
-                                      </Link>
-                                    </li>
-                                    <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                        onClick={() =>
-                                          handleViewProfile(user.client_id)
-                                        }
-                                      >
-                                        <i className="bi bi-clock"></i>Assign  Case
-                                      </Link>
-                                    </li>
+                                   
+                                    
                                   </ul>
                                 </div>
                               </td>

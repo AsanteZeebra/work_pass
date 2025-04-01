@@ -189,11 +189,11 @@ const CustomerInfo = () => {
               {caseData ? (
                 <div className="accordion-item">
                   <h2 className="accordion-header" id="flush-headingOne">
-                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                  <button className="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
                  <p> <b> {caseData.tittle}</b>  <small style={{fontSize: "10px"}}>{caseData.date_updated}</small></p>
                   </button>
                   </h2>
-                  <div id="flush-collapseOne" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                  <div id="flush-collapseOne" className="accordion-collapse " aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                   <div className="accordion-body">
                         <p >{caseData.message}</p>
                     </div>
@@ -210,7 +210,7 @@ const CustomerInfo = () => {
                    <strong>  Transactions</strong>
                     </button>
                   </h2>
-                  <div id="flush-collapseTwo" className="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                  <div id="flush-collapseTwo" className="accordion-collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                    <table className="table ">
                     <thead className="table-light">
                       <tr>
@@ -257,7 +257,7 @@ const CustomerInfo = () => {
                 </div>
               </div>
 
-              <button className="btn btn-outline-primary " title="Send Updates Reminder to Customer">Send Reminder</button> <button className="btn btn-outline-warning" title="Suspend Case till further Notice">Suspend</button>
+             
             </div>
               )}
           </div>
@@ -290,11 +290,22 @@ const CustomerInfo = () => {
                 <p>{customerData.application_type}</p>
                
               </div>
+
+              <hr/>
+           <div> 
+           <button className="btn btn-outline-primary" title="Edit client infomation" style={{marginRight: "10px"}}><i className="bi bi-pen"></i> Edit</button>
+            
+            <button className="btn btn-outline-warning" title="Suspend Case till further Notice"><i className="bi bi-pause-circle"></i> Suspend</button>
+            
+            <button className="btn btn-outline-danger" title="Delete Case" style={{marginLeft:"10px"}}><i className="bi bi-trash3"></i> Delete</button>
+          
+          
+           </div>
             </div>
              ) : (
               <p>No client data available.</p>
             )}
-           
+          
           </div>
         </div>
       </div>
