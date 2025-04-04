@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 
 const Pay_salary = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -19,9 +19,11 @@ const Pay_salary = () => {
   const [employeeName, setEmployeeName] = useState(
     localStorage.getItem("emp_name") || ""
   );
-  const [empSalary, setEmpSalary] = useState(
-    localStorage.getItem("emp_salary") || ""
+  const [Salary, setEmpSalary] = useState(
+    localStorage.getItem("emp_salary") || "",
+   
   );
+  
   const [Department, setDeaprtment] = useState(
     localStorage.getItem("emp_department") || ""
   );
@@ -37,6 +39,13 @@ const Pay_salary = () => {
     localStorage.getItem("emp_month_year") || ""
   );
 
+  const [employeeID, setEployeeID] = useState(
+    localStorage.getItem("emp_id") || ""
+    );
+    const [Email, setEmail] = useState(
+        localStorage.getItem("emp_email") || ""
+        );
+
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
     department: yup.string().required("Department is required"),
@@ -45,6 +54,8 @@ const Pay_salary = () => {
     currency: yup.string().required("Currency is required"),
     motnh_year: yup.string().required("Month and Year is required"),
     salary: yup.number().required("Salary amount is required"),
+    employee_id: yup.string().required("Employee ID is required"),
+    email: yup.string().email("Invalid email format").required("Email is required"),
   });
 
   const {
@@ -118,11 +129,18 @@ const Pay_salary = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/authentication/create_user.php",
+        "http://localhost/wp_api/employees/pay_salary.php",
         {
-          fullname: data.fullname,
-          email: data.email,
-          password: data.password,
+          month_year: data.motnh_year,
+         employee_id: data.employee_id,
+         method: data.method,
+            salary: data.salary,
+            currency: data.currency,
+            fullname: data.fullname,
+            department: data.department,
+            position: data.position,
+            email: data.email,
+          
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -134,8 +152,9 @@ const Pay_salary = () => {
         setLoading(false);
         reset(); // Reset the form after successful submission
         setTimeout(() => {
-          navigate("/login"); // Navigate to login page after 3 seconds
-        }, 3000);
+          navigate("/payroll"); // Navigate to payroll page after 3 seconds
+        }, 5000);
+        
       } else {
         toast.error(response.data.message, { position: "top-right" });
         setLoading(false);
@@ -269,15 +288,15 @@ const Pay_salary = () => {
                             </label>
                             <div className="">
                               <input
-                                type="number"
+                                type="text"
                                 className="form-control"
-                                id="empSalary"
+                                id="salary"
                                 placeholder="Salary Amount"
-                                value={empSalary} // Set value from localStorage
+                                value={Salary} // Set value from localStorage
                                 onChange={(e) => setEmpSalary(e.target.value)} // Update state on change
                                 required
                                 disabled
-                                {...register("fullname")}
+                                {...register("salary")}
                               />
                               <p className="text-danger">
                                 {errors.salary?.message}
@@ -300,7 +319,7 @@ const Pay_salary = () => {
                                 aria-label="Default select example"
                                 {...register("method")}
                               >
-                                <option selected>
+                                <option value="" selected>
                                   --Select Payment Method--
                                 </option>
                                 <option value="Bank Transfer">
@@ -373,6 +392,29 @@ const Pay_salary = () => {
                               </p>
                             </div>
                           </div>
+
+                          <input
+                                type="text"
+                                className="form-control"
+                                id="employee_id"
+                                placeholder="employee_id"
+                                value={employeeID} // Set value from localStorage
+                                onChange={(e) => setEployeeID(e.target.value)} // Update state on change
+                                required hidden
+                                disabled
+                                {...register("employee_id")}
+                              />
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="email"
+                                placeholder="email"
+                                value={Email} // Set value from localStorage
+                                onChange={(e) => setEmail(e.target.value)} // Update state on change
+                                required hidden
+                                disabled
+                                {...register("email")}
+                              />
                         </div>
                       </div>
 
