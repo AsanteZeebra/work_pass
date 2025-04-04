@@ -97,7 +97,7 @@ const Header = () => {
               <li><hr className="dropdown-divider" /></li>
 
               <li>
-              <Link className="dropdown-item d-flex align-items-center" to="/components/authentication/account_settings">
+              <Link className="dropdown-item d-flex align-items-center" to="/account_settings">
                 <i className="bi bi-gear"></i>
                 <span>Account Settings</span>
               </Link>

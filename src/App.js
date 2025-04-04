@@ -13,6 +13,7 @@ import Assign_case from './components/cases/assign_case';
 import Employees from './components/employees/employee_list';
 import Add_employee from './components/employees/add_employee';
 import Payroll from './components/payroll/payroll';
+import Pay_salary from './components/payroll/pay_salary';
 import { useState } from 'react';
 
 
@@ -43,6 +44,7 @@ function App() {
       <Route path="/add_employee" element={<Layout><Add_employee token={token} /></Layout>} />
       <Route path="/employee_list" element={<Layout><Employees token={token} /></Layout>} />
       <Route path="/payroll" element={<Layout><Payroll token={token} /></Layout>} />
+      <Route path="/pay_salary" element={<Layout><Pay_salary token={token}/></Layout>} />
      
      
     </Routes>

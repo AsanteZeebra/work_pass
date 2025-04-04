@@ -263,7 +263,7 @@ const Account_Settings = () => {
                                   <i className="bi bi-three-dots-vertical" id={`dropdownMenuButton${user.uid}`} data-bs-toggle="dropdown" aria-expanded="false" style={{ cursor: 'pointer' }}></i>
                                   <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton${user.uid}`}>
                                     <li>
-                                      <Link to={`/components/authentication/users_profile`} className="dropdown-item" onClick={() => handleViewProfile(user.uid,user.email)}>
+                                      <Link to={`/users_profile`} className="dropdown-item" onClick={() => handleViewProfile(user.uid,user.email)}>
                                         <i className="bi bi-eye"></i> View
                                       </Link>
                                     </li>

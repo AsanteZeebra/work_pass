@@ -22,9 +22,6 @@ const schema = yup.object().shape({
 });
 
 
-
-
- 
 const UsersProfile = () => {
 
  

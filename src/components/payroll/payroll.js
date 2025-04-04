@@ -13,10 +13,7 @@ import "pdfmake"; // Required for PDF export
 import "pdfmake/build/vfs_fonts"; // PDF fonts
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { ClipLoader } from "react-spinners";
+
 // CSS Imports
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
@@ -88,7 +85,7 @@ const Payroll = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/employees/fetch_employees.php")
+      .get("http://localhost/wp_api/employees/fetch_salaries.php")
       .then((response) => {
         SetEmployees(response.data.employees);
         setLoading(false);
@@ -145,6 +142,16 @@ const Payroll = () => {
     };
   }, []);
 
+  const handledata = (employee_id,email,salary,fullname,currency,department,position,month_year) => {
+    localStorage.setItem("emp_id", employee_id);
+    localStorage.setItem("emp_email", email);
+    localStorage.setItem("emp_salary", salary);
+    localStorage.setItem("emp_name", fullname);
+    localStorage.setItem("currency", currency);
+    localStorage.setItem("emp_department", department);
+    localStorage.setItem("emp_position", position);
+    localStorage.setItem("emp_month_year", month_year); // Set current month and year
+  };
   return (
     <>
       <div className="pagetitle">
@@ -275,9 +282,10 @@ const Payroll = () => {
                           <th>ID</th>
                           <th>Fullname</th>
                           <th>Email</th>
-                          <th>Gender</th>
                           <th>Department</th>
                           <th>Position</th>
+                          <th>Month_Year</th>
+                          <th>Amount</th>
                           <th>Status</th>
                           <th>Actions</th>
                         </tr>
@@ -289,20 +297,20 @@ const Payroll = () => {
                               <td>{employee.employee_id}</td>
                               <td>{employee.fullname}</td>
                               <td>{employee.email}</td>
-                              <td>{employee.gender}</td>
                               <td>{employee.department}</td>
-                              <td>{employee.Position}</td>
+                              <td>{employee.position}</td>
+                              <td>{employee.month_year}</td>
+                              <td>{employee.salary}</td>
                               <td>
                                 <span
                                   className={`badge ${
-                                    employee.status === "Active"
+                                    employee.status === "Paid"
                                       ? "bg-success"
-                                      : employee.status === "Pending"
+                                     
+                                      : employee.status === "Unpaid" ||
+                                        employee.status === "Hold"
                                       ? "bg-warning"
-                                      : employee.status === "Suspended" ||
-                                        employee.status === "Blocked"
-                                      ? "bg-danger"
-                                      : "bg-secondary"
+                                      : "bg-danger"
                                   }`}
                                 >
                                   {employee.status}
@@ -322,9 +330,9 @@ const Payroll = () => {
                                     aria-labelledby={`dropdownMenuButton`}
                                   >
                                     <li>
-                                      <Link to={`#`} className="dropdown-item">
+                                      <Link to="/pay_salary" className="dropdown-item" onClick={() => handledata(employee.employee_id,employee.email,employee.salary,employee.fullname,employee.currency,employee.department,employee.position,employee.month_year)}>
                                         <i className="bi bi-arrow-right-square"></i>{" "}
-                                        Pay Employee
+                                        Pay
                                       </Link>
                                     </li>
 
