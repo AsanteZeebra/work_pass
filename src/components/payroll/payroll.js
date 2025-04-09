@@ -142,7 +142,16 @@ const Payroll = () => {
     };
   }, []);
 
-  const handledata = (employee_id,email,salary,fullname,currency,department,position,month_year) => {
+  const handledata = (
+    employee_id,
+    email,
+    salary,
+    fullname,
+    currency,
+    department,
+    position,
+    month_year
+  ) => {
     localStorage.setItem("emp_id", employee_id);
     localStorage.setItem("emp_email", email);
     localStorage.setItem("emp_salary", salary);
@@ -152,6 +161,75 @@ const Payroll = () => {
     localStorage.setItem("emp_position", position);
     localStorage.setItem("emp_month_year", month_year); // Set current month and year
   };
+
+  const [error, setError] = useState("");
+  const [countData, SetCountData] = useState(null);
+  const [PercentageData, SetPercentageData] = useState(null);
+
+  useEffect(() => {
+    fetchcount();
+    fecthPercentage(); // Fetch percentage data on component mount
+  }, []); // Fetch count data on component mount
+
+  useEffect(() => {
+   
+    fecthPercentage();
+  }, []);
+
+  const fecthPercentage = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/employees/percentage_indicator.php",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    
+
+      if (response.data.status === "success") {
+        SetPercentageData({
+          Paid: response.data.percentage_changes?.paid_employees || 0,
+          Unpaid: response.data.percentage_changes?.unpaid_employees || 0,
+          employee: response.data.percentage_changes?.total_employees || 0,
+        });
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching percentage data:", error);
+      setError("Error fetching percentage data. Please try again.");
+    }
+  };
+
+  const fetchcount = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/wp_api/employees/count_employees.php",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        // Set countData with all counts
+        SetCountData({
+          total_all: response.data.all_employees,
+          total_paid: response.data.Paid_employees,
+          total_unpaid: response.data.Unpaid_employees,
+        });
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case data. Please try again.");
+    }
+  };
+
+  
   return (
     <>
       <div className="pagetitle">
@@ -179,11 +257,42 @@ const Payroll = () => {
                   <i className="bi bi-arrow-up-circle"></i>
                 </div>
                 <div className="ps-3">
-                  <h6>145</h6>
-                  <span className="text-success small pt-1 fw-bold">
-                    12%
-                  </span>{" "}
-                  <span className="text-muted small pt-2 ps-1">increase</span>
+                  {/* Display total paid count and percentage change */}
+                  {countData ? (
+                    <h6>{countData.total_paid}</h6>
+                  ) : (
+                    <p>No case data available.</p>
+                  )}
+                  {PercentageData && PercentageData.Paid !== undefined ? (
+                    <span className="text-success small pt-1 fw-bold">
+                      {PercentageData.Paid}%
+                    </span>
+                  ) : (
+                    <p>No percentage data available.</p>
+                  )}
+
+                  {PercentageData && PercentageData.Paid > 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-up-right-square"
+                        style={{ color: "#269746" }}
+                      ></i>
+                    </span>
+                  ) : PercentageData && PercentageData.Paid < 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-down-right-square"
+                        style={{ color: "red" }}
+                      ></i>
+                    </span>
+                  ) : (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-dash-square"
+                        style={{ color: "gray" }}
+                      ></i>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -203,11 +312,42 @@ const Payroll = () => {
                   <i className="bi bi-arrow-clockwise"></i>
                 </div>
                 <div className="ps-3">
-                  <h6>145</h6>
-                  <span className="text-success small pt-1 fw-bold">
-                    12%
-                  </span>{" "}
-                  <span className="text-muted small pt-2 ps-1">increase</span>
+                  {countData ? (
+                    <h6>{countData.total_unpaid}</h6>
+                  ) : (
+                    <p>No case data available.</p>
+                  )}
+
+                  {PercentageData && PercentageData.Unpaid !== undefined ? (
+                    <span className="text-success small pt-1 fw-bold">
+                      {PercentageData.Unpaid}%
+                    </span>
+                  ) : (
+                    <p>No percentage data available.</p>
+                  )}
+
+                  {PercentageData && PercentageData.Unpaid > 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-up-right-square"
+                        style={{ color: "#269746" }}
+                      ></i>
+                    </span>
+                  ) : PercentageData && PercentageData.Unpaid < 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-down-right-square"
+                        style={{ color: "red" }}
+                      ></i>
+                    </span>
+                  ) : (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-dash-square"
+                        style={{ color: "gray" }}
+                      ></i>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -227,11 +367,42 @@ const Payroll = () => {
                   <i className="bi bi-people"></i>
                 </div>
                 <div className="ps-3">
-                  <h6>145</h6>
-                  <span className="text-success small pt-1 fw-bold">
-                    12%
-                  </span>{" "}
-                  <span className="text-muted small pt-2 ps-1">increase</span>
+                  {countData ? (
+                    <h6>{countData.total_all}</h6>
+                  ) : (
+                    <p>No case data available.</p>
+                  )}
+
+                  {PercentageData && PercentageData.employee !== undefined ? (
+                    <span className="text-success small pt-1 fw-bold">
+                      {PercentageData.employee}%
+                    </span>
+                  ) : (
+                    <p>No percentage data available.</p>
+                  )}
+
+                  {PercentageData && PercentageData.employee > 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-up-right-square"
+                        style={{ color: "#269746" }}
+                      ></i>
+                    </span>
+                  ) : PercentageData && PercentageData.employee < 0 ? (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-arrow-down-right-square"
+                        style={{ color: "red" }}
+                      ></i>
+                    </span>
+                  ) : (
+                    <span className="text-muted small pt-2 ps-1">
+                      <i
+                        className="bi bi-dash-square"
+                        style={{ color: "gray" }}
+                      ></i>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -268,7 +439,7 @@ const Payroll = () => {
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
                   <h5 className="card-title">Employee List</h5>
-                 
+
                   {loading ? (
                     <div className="text-center">
                       <div className="spinner-border" role="status">
@@ -306,7 +477,6 @@ const Payroll = () => {
                                   className={`badge ${
                                     employee.status === "Paid"
                                       ? "bg-success"
-                                     
                                       : employee.status === "Unpaid" ||
                                         employee.status === "Hold"
                                       ? "bg-warning"
@@ -330,13 +500,26 @@ const Payroll = () => {
                                     aria-labelledby={`dropdownMenuButton`}
                                   >
                                     <li>
-                                      <Link to="/pay_salary" className="dropdown-item" onClick={() => handledata(employee.employee_id,employee.email,employee.salary,employee.fullname,employee.currency,employee.department,employee.position,employee.month_year)}>
+                                      <Link
+                                        to="/pay_salary"
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handledata(
+                                            employee.employee_id,
+                                            employee.email,
+                                            employee.salary,
+                                            employee.fullname,
+                                            employee.currency,
+                                            employee.department,
+                                            employee.position,
+                                            employee.month_year
+                                          )
+                                        }
+                                      >
                                         <i className="bi bi-arrow-right-square"></i>{" "}
                                         Pay
                                       </Link>
                                     </li>
-
-                                   
                                   </ul>
                                 </div>
                               </td>

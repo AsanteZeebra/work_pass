@@ -34,6 +34,21 @@ const Assign_case = ({ onChange }) => {
   const [caseData, SetCaseData] = useState(null);
   const [staffData, setStaffData] = useState(null);
   const [error, setError] = useState("");
+  const [selectedClient, setSelectedClient] = useState(""); // Track selected client
+  const [selectedCaseId, setSelectedCaseId] = useState(""); // Track selected case_id
+
+  const handleClientChange = (e) => {
+    const clientName = e.target.value;
+    setSelectedClient(clientName);
+
+    // Find the corresponding case_id for the selected client
+    const client = caseData.find((c) => c.customer_name === clientName);
+    if (client) {
+      setSelectedCaseId(client.case_id); // Update the case_id
+    } else {
+      setSelectedCaseId(""); // Reset case_id if no match is found
+    }
+  };
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -294,7 +309,7 @@ const Assign_case = ({ onChange }) => {
                         <div className="modal-body">
                           <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="row mb-3">
-                              <div className="col-md-6">
+                              <div className="col-md-12">
                                 <div className="form-group">
                                   <label htmlFor="fullname" style={{marginTop: "10px", marginBottom: "10px"}}><b>Client</b></label>
                                   <span className="text-danger">*</span>
@@ -304,6 +319,8 @@ const Assign_case = ({ onChange }) => {
                                     id="fullname"
                                     name="fullname"
                                     {...register("fullname")}
+                                    value={selectedClient} // Bind to selectedClient state
+                                    onChange={handleClientChange} // Handle client selection
                                   >
                                     <option value="">
                                       -- Select client --
@@ -329,16 +346,19 @@ const Assign_case = ({ onChange }) => {
                                 </div>
                               </div>
 
-                              <div className="col-md-6">
+                              <div className="col-md-6" >
                                 <div className="form-group">
-                                  <label htmlFor="case_id" style={{marginTop: "10px", marginBottom: "10px"}}><b>Case_id</b></label>
+                                  <label htmlFor="case_id" style={{marginTop: "10px", marginBottom: "10px"}}><b>Case ID</b></label>
                                   <span className="text-danger">*</span>
                                   <select
                                     className="form-select"
                                     id="case_id"
                                     name="case_id"
+                                  
+                                    value={selectedCaseId} // Bind to selectedCaseId state
+                                    onChange={(e) => setSelectedCaseId(e.target.value)} // Allow manual selection if needed
                                     {...register("case_id")}
-                                  >
+                                 >
                                     <option value="">
                                       -- Select case_id --
                                     </option>
@@ -368,7 +388,12 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="deadline" style={{marginTop: "10px", marginBottom: "10px"}}><b>Deadline</b></label>
+                                  <label
+                                    htmlFor="deadline"
+                                    style={{ marginTop: "10px", marginBottom: "10px" }}
+                                  >
+                                    <b>Deadline</b>
+                                  </label>
                                   <span className="text-danger">*</span>
                                   <input
                                     type="date"
@@ -377,10 +402,9 @@ const Assign_case = ({ onChange }) => {
                                     name="deadline"
                                     placeholder="Deadline"
                                     title="Choose a deadline"
+                                    {...register("deadline")} // Register the input
                                   />
-                                  <p className="text-danger">
-                                    {errors.deadline?.message}
-                                  </p>
+                                  <p className="text-danger">{errors.deadline?.message}</p>
                                 </div>
                               </div>
                             </div>
@@ -425,18 +449,21 @@ const Assign_case = ({ onChange }) => {
                             <div className="row mb-3">
                               <div className="col-md-12">
                                 <div className="form-group">
-                                  <label htmlFor="additional" style={{marginTop: "10px", marginBottom: "10px"}}>
-                                   <b> Addition instructions</b>
+                                  <label
+                                    htmlFor="additional"
+                                    style={{ marginTop: "10px", marginBottom: "10px" }}
+                                  >
+                                    <b>Additional Instructions</b>
                                   </label>
                                   <textarea
                                     className="form-control"
+                                    id="additional"
                                     name="additional"
                                     placeholder="Additional instruction"
-                                    rows={"5"}
+                                    rows="5"
+                                    {...register("additional")} // Register the textarea
                                   ></textarea>
-                                  <p className="text-danger">
-                                    {errors.additional?.message}
-                                  </p>
+                                  <p className="text-danger">{errors.additional?.message}</p>
                                 </div>
                               </div>
                             </div>
