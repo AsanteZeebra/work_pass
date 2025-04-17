@@ -69,8 +69,8 @@ const Sidebar = () => {
                 </Link>
               </li>
               <li>
-                <Link to="">
-                  <i className="bi bi-circle"></i><span>Cases History</span>
+                <Link to="/activity_logs">
+                  <i className="bi bi-circle"></i><span>Activity logs</span>
                 </Link>
               </li>
             </ul>
@@ -82,20 +82,11 @@ const Sidebar = () => {
             </Link>
             <ul id="passports-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="tables-general.html">
+                <Link to="/passports_info">
                   <i className="bi bi-circle"></i><span>All Passports</span>
                 </Link>
               </li>
-              <li>
-                <Link to="tables-data.html">
-                  <i className="bi bi-circle"></i><span>Collect Passport</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="tables-data.html">
-                  <i className="bi bi-circle"></i><span>Return Passport</span>
-                </Link>
-              </li>
+            
             </ul>
           </li>
 

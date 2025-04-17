@@ -85,7 +85,7 @@ const Payroll = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/employees/fetch_salaries.php")
+      .get("http://localhost/wp_api/payroll/fetch_salaries.php")
       .then((response) => {
         SetEmployees(response.data.employees);
         setLoading(false);
@@ -144,22 +144,10 @@ const Payroll = () => {
 
   const handledata = (
     employee_id,
-    email,
-    salary,
-    fullname,
-    currency,
-    department,
-    position,
-    month_year
+   
   ) => {
     localStorage.setItem("emp_id", employee_id);
-    localStorage.setItem("emp_email", email);
-    localStorage.setItem("emp_salary", salary);
-    localStorage.setItem("emp_name", fullname);
-    localStorage.setItem("currency", currency);
-    localStorage.setItem("emp_department", department);
-    localStorage.setItem("emp_position", position);
-    localStorage.setItem("emp_month_year", month_year); // Set current month and year
+ 
   };
 
   const [error, setError] = useState("");
@@ -501,23 +489,17 @@ const Payroll = () => {
                                   >
                                     <li>
                                       <Link
-                                        to="/pay_salary"
+                                        to="/statement"
                                         className="dropdown-item"
                                         onClick={() =>
                                           handledata(
                                             employee.employee_id,
-                                            employee.email,
-                                            employee.salary,
-                                            employee.fullname,
-                                            employee.currency,
-                                            employee.department,
-                                            employee.position,
-                                            employee.month_year
+                                           
                                           )
                                         }
                                       >
                                         <i className="bi bi-arrow-right-square"></i>{" "}
-                                        Pay
+                                      View Statement
                                       </Link>
                                     </li>
                                   </ul>

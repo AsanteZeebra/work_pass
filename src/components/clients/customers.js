@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback,useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import $ from "jquery";
@@ -28,6 +28,7 @@ const Customers = ({ onChange }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const countries = countryList.getNames();
+  const tableRef = useRef(null); // Ref for the table element
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -141,6 +142,7 @@ const Customers = ({ onChange }) => {
         console.log(response.data.message);
         setLoading(false);
         reset(); // Reset the form after successful submission
+      
       } else {
         toast.error(response.data.message, { position: "top-right" });
         setLoading(false);
@@ -160,14 +162,13 @@ const Customers = ({ onChange }) => {
         setUsers(response.data.users);
         setLoading(false);
 
-      
-
-        // Destroy previous DataTable instance if it exists
-        if ($.fn.DataTable.isDataTable("#myTable")) {
-          $("#myTable").DataTable().destroy();
+         // Destroy previous DataTable instance if it exists
+         if ($.fn.DataTable.isDataTable(tableRef.current)) {
+          $(tableRef.current).DataTable().destroy();
         }
+
         // Initialize DataTable after data is fetched
-        $("#myTable").DataTable({
+        $(tableRef.current).DataTable({
           responsive: true,
           lengthMenu: [5, 10, 25, 50],
           pageLength: 10,
@@ -229,7 +230,7 @@ const Customers = ({ onChange }) => {
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <a href="index.html">Dashboard</a>
+              <Link to="/dashboard">Dashboard</Link>
             </li>
             <li className="breadcrumb-item active">manage_clients</li>
           </ol>

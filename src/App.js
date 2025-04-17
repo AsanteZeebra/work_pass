@@ -14,6 +14,10 @@ import Employees from './components/employees/employee_list';
 import Add_employee from './components/employees/add_employee';
 import Payroll from './components/payroll/payroll';
 import Pay_salary from './components/payroll/pay_salary';
+import ActivityLogs from './components/cases/activity_logs';
+import Statement from './components/payroll/statement';
+import Passpots_info from './components/passport/passports';
+
 import { useState } from 'react';
 
 
@@ -45,6 +49,9 @@ function App() {
       <Route path="/employee_list" element={<Layout><Employees token={token} /></Layout>} />
       <Route path="/payroll" element={<Layout><Payroll token={token} /></Layout>} />
       <Route path="/pay_salary" element={<Layout><Pay_salary token={token}/></Layout>} />
+      <Route path="/statement" element={<Layout><Statement token={token}/></Layout>} />
+      <Route path="/activity_logs" element={<Layout><ActivityLogs token={token}/></Layout>} />
+      <Route path="/passports_info" element={<Layout><Passpots_info token={token}/></Layout>} />
      
      
     </Routes>

@@ -1,0 +1,68 @@
+/* filepath: c:\Users\Mike\Desktop\work_pass\src\components\cases\activity_logs.css */
+.timeline {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #ddd;
+    left: 50%;
+    margin-left: -2px;
+  }
+  
+  .timeline > div {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .timeline > div:after,
+  .timeline > div:before {
+    content: " ";
+    display: table;
+  }
+  
+  .timeline > div:after {
+    clear: both;
+  }
+  
+  .timeline > div > .timeline-item {
+    margin-left: 60px;
+    margin-right: 60px;
+    padding: 10px;
+    background: #f4f4f4;
+    border-radius: 5px;
+    position: relative;
+  }
+  
+  .timeline > div > .timeline-item:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+  }
+  
+  .timeline > div > i {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin-left: -15px;
+    width: 30px;
+    height: 30px;
+    background: #007bff;
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+  }
