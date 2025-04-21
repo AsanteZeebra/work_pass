@@ -303,7 +303,7 @@ const CustomerInfo = () => {
            </div>
             </div>
              ) : (
-              <p>No client data available.</p>
+              <p>No client info available.</p>
             )}
           
           </div>
