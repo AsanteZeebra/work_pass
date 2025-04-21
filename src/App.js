@@ -17,6 +17,7 @@ import Pay_salary from './components/payroll/pay_salary';
 import ActivityLogs from './components/cases/activity_logs';
 import Statement from './components/payroll/statement';
 import Passpots_info from './components/passport/passports';
+import Request from './components/passport/request';
 
 import { useState } from 'react';
 
@@ -52,6 +53,10 @@ function App() {
       <Route path="/statement" element={<Layout><Statement token={token}/></Layout>} />
       <Route path="/activity_logs" element={<Layout><ActivityLogs token={token}/></Layout>} />
       <Route path="/passports_info" element={<Layout><Passpots_info token={token}/></Layout>} />
+      <Route path="/request" element={<Layout><Request token={token}/></Layout>} />
+
+     
+
      
      
     </Routes>

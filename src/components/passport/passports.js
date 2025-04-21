@@ -88,11 +88,6 @@ const Passpots_info = ({ onChange }) => {
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
 
- 
-
-
- 
-
   useEffect(() => {
     setLoading(true);
     axios
@@ -155,7 +150,17 @@ const Passpots_info = ({ onChange }) => {
     };
   }, []);
 
-  
+  const handledata = (
+    passport_no,
+    fullname,
+    email,
+   
+  ) => {
+    localStorage.setItem("passport_no", passport_no);
+    localStorage.setItem("fullname", fullname);
+    localStorage.setItem("email", email);
+ 
+  };
 
   return (
     <>
@@ -218,6 +223,7 @@ const Passpots_info = ({ onChange }) => {
                                       ? "bg-success"
                                       : passport.status === "Expired"
                                       ? "bg-danger"
+                                      : passport.status === "Collected"? "bg-warning"
                                       : passport.status === "Suspended" ||
                                       passport.status === "Blocked"
                                       ? "bg-danger"
@@ -242,24 +248,23 @@ const Passpots_info = ({ onChange }) => {
                                   >
                                     <li>
                                       <Link
-                                        to={`#`}
+                                        to={`/request`}
                                         className="dropdown-item"
-                                      
+                                        onClick={() =>
+                                          handledata(
+                                            passport.passport_no,
+                                            passport.fullname,
+                                            passport.email,
+                                           
+                                          )
+                                        }
                                       >
-                                        Collect
+                                        Collect/Return
                                       </Link>
                                     </li>
 
                                    
-                                    <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                       
-                                      >
-                                     Return
-                                      </Link>
-                                    </li>
+                                  
 
                                     
                                   </ul>

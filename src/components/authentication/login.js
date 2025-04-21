@@ -102,7 +102,7 @@ const onSubmit = async (data) => {
                           id="exampleInputEmail1"
                           placeholder="Email"
                         />
-                         {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
+                         {errors.email && <div className="invalid-feedback">{errors.email.message} </div>}
                                
                       </div>
                     </div>

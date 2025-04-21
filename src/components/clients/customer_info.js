@@ -14,7 +14,7 @@ const CustomerInfo = () => {
   const [loading, setLoading] = useState(false);
 
   // Memoize handleLogout to prevent re-creation
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback((token, setToken, handleLogout) => {
     localStorage.removeItem("token"); // Remove token from localStorage
     localStorage.removeItem("username"); // Remove username from localStorage
     localStorage.clear();
@@ -35,9 +35,9 @@ const CustomerInfo = () => {
           }
         );
 
-        console.log("Token is valid:", response.data);
+        //console.log("Token is valid:", response.data);
       } catch (error) {
-        console.error("Token validation error:", error);
+        //console.error("Token validation error:", error);
         handleLogout();
       }
     };
