@@ -28,7 +28,7 @@ const Add_employee = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -107,7 +107,7 @@ const Add_employee = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/employees/add_employee.php",
+        "http://main.fremikeconsult.com/wp_api/employees/add_employee.php",
         {
           fullname: data.fullname,
           dob: data.dob,

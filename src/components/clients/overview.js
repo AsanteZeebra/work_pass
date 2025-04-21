@@ -37,7 +37,7 @@ const Overview = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -111,7 +111,7 @@ const Overview = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/clients/add_client.php",
+        "http://main.fremikeconsult.com/wp_api/clients/add_client.php",
         {
           fullname: data.fullname,
           email: data.email,
@@ -146,7 +146,7 @@ const Overview = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost/wp_api/clients/fetch_customers.php")
+      .get("http://main.fremikeconsult.com/wp_api/clients/fetch_customers.php")
       .then((response) => {
         setUsers(response.data.users);
         setLoading(false);
@@ -227,7 +227,7 @@ const Overview = () => {
   const fetchcount = async () => {
     try {
       const response = await axios.get(
-        "http://localhost/wp_api/Clients/count_cases.php",
+        "http://main.fremikeconsult.com/wp_api/Clients/count_cases.php",
         {
           headers: {
             "Content-Type": "application/json",
@@ -260,7 +260,7 @@ const Overview = () => {
   const fecthPercentage = async () => {
     try {
       const response = await axios.get(
-        "http://localhost/wp_api/Clients/calculate_cases_percentages.php",
+        "http://main.fremikeconsult.com/wp_api/Clients/calculate_cases_percentages.php",
         {
           headers: {
             "Content-Type": "application/json",

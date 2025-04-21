@@ -25,7 +25,7 @@ const CustomerInfo = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -93,7 +93,7 @@ const CustomerInfo = () => {
   const fetchCaseDetails = async (passportNo) => {
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/Clients/fetch_cases.php",
+        "http://main.fremikeconsult.com/wp_api/Clients/fetch_cases.php",
         { passport_no: passportNo }, // Send as POST body
         {
           headers: {
@@ -114,7 +114,7 @@ const CustomerInfo = () => {
 
   const fetchcustomerDetails = async (passportNo) => {
     try {
-      const response = await axios.post("http://localhost/wp_api/Clients/fetch_customer_info.php",
+      const response = await axios.post("http://main.fremikeconsult.com/wp_api/Clients/fetch_customer_info.php",
         { passport_no: passportNo }, // Send as POST body
         {
           headers: {

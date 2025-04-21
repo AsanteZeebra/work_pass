@@ -25,7 +25,7 @@ const ActivityLogs = ({timestamp }) => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {

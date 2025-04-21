@@ -35,7 +35,7 @@ const Statement = () => {
     if (employee_Id) {
       setLoading(true);
       axios
-        .get(`http://localhost/wp_api/payroll/fetch_statement.php?employee_Id=${employee_Id}`, {
+        .get(`http://main.fremikeconsult.com/wp_api/payroll/fetch_statement.php?employee_Id=${employee_Id}`, {
           headers: {
             "Content-Type": "application/json",
           },

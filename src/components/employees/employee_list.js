@@ -42,7 +42,7 @@ const Employees = ({ onChange }) => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -96,7 +96,7 @@ const Employees = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/employees/fetch_employees.php")
+      .get("http://main.fremikeconsult.com/wp_api/employees/fetch_employees.php")
       .then((response) => {
         SetEmployees(response.data.employees);
         setLoading(false);

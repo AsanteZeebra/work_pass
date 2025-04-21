@@ -220,7 +220,7 @@ const UsersProfile = () => {
     setLoading(true); // Set loading to true when form is submitted
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/authentication/request_reset.php",
+        "http://main.fremikeconsult.com/wp_api/authentication/request_reset.php",
         { email: data.email }
       );
       console.log("API response:", response.data); // Debugging log
@@ -245,7 +245,7 @@ const UsersProfile = () => {
     try {
     
       const response = await axios.post(
-        "http://localhost/wp_api/authentication/change_role.php",
+        "http://main.fremikeconsult.com/wp_api/authentication/change_role.php",
         { email: data.email }
       );
       console.log("API response:", response.data); // Debugging log

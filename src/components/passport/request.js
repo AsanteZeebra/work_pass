@@ -50,7 +50,7 @@ const Request = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/passports/passport_request.php",
+        "http://main.fremikeconsult.com/wp_api/passports/passport_request.php",
         {
           passport_no: data.passport_no,
           email: data.email,

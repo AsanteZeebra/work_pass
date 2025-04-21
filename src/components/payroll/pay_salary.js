@@ -79,7 +79,7 @@ const Pay_salary = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
+          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -129,7 +129,7 @@ const Pay_salary = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/employees/pay_salary.php",
+        "http://main.fremikeconsult.com/wp_api/employees/pay_salary.php",
         {
           month_year: data.motnh_year,
          employee_id: data.employee_id,
