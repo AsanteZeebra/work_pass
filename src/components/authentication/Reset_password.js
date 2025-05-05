@@ -45,7 +45,7 @@ const Reset_Password = () => {
     setLoading(true); // Set loading to true when form is submitted
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/authentication/reset_Password.php",
+        "http://localhost/wp_api/authentication/reset_Password.php",
         { token, email: data.email, password: data.password }
       );
       console.log("API response:", response.data); // Debugging log

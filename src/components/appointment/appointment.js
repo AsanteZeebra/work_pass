@@ -1,49 +1,40 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useCallback } from "react";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 import $ from "jquery";
 import "datatables.net-bs5";
-import "datatables.net-buttons-bs5"; // DataTables Buttons with Bootstrap styling
-import "datatables.net-buttons/js/dataTables.buttons"; // Core buttons feature
-import "datatables.net-buttons/js/buttons.html5"; // Export buttons (CSV, Excel, PDF)
-import "datatables.net-buttons/js/buttons.print"; // Print button
-import "jszip"; // Required for Excel export
-import "pdfmake"; // Required for PDF export
-import "pdfmake/build/vfs_fonts"; // PDF fonts
+import "datatables.net-buttons-bs5";
+import "datatables.net-buttons/js/dataTables.buttons";
+import "datatables.net-buttons/js/buttons.html5";
+import "datatables.net-buttons/js/buttons.print";
+import "jszip";
+import "pdfmake";
+import "pdfmake/build/vfs_fonts";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { ClipLoader } from "react-spinners";
-// CSS Imports
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 
-
-const Employees = ({ onChange }) => {
-
+const Appointment = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
-  const [employees, SetEmployees] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
-  
 
-  // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("token"); // Remove token from localStorage
-    localStorage.removeItem("username"); // Remove username from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
     localStorage.clear();
-    navigate("/login"); // Redirect to login page
-  }, [navigate]); // Dependency ensures it doesn't change on every render
+    navigate("/login");
+  }, [navigate]);
 
   useEffect(() => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
           "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
+          {},
           {
             headers: {
               "Content-Type": "application/json",
@@ -51,11 +42,8 @@ const Employees = ({ onChange }) => {
             },
           }
         );
-
-        //console.log("Token is valid:", response.data);
       } catch (error) {
-        //console.error("Token validation error:", error);
-        toast.success("Unauthorized",error)
+        toast.error("Unauthorized", { position: "top-right" });
         handleLogout();
       }
     };
@@ -63,20 +51,18 @@ const Employees = ({ onChange }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
+        const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
           handleLogout();
         } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
+          const timeout = (decodedToken.exp - currentTime) * 1000;
           const logoutTimer = setTimeout(() => {
             handleLogout();
           }, timeout);
 
-          // Call verifyToken before returning
           verifyToken(token);
 
-          // Cleanup the timer when the component unmounts
           return () => clearTimeout(logoutTimer);
         }
       } catch (error) {
@@ -86,78 +72,80 @@ const Employees = ({ onChange }) => {
     } else {
       navigate("/login");
     }
-  }, [token, navigate, handleLogout]); // Now handleLogout is included
-
+  }, [token, navigate, handleLogout]);
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/employees/fetch_employees.php")
+      .get("http://localhost/wp_api/appointment/appointment.php")
       .then((response) => {
-        const fetchedEmployees = response.data.employees || [];
-        SetEmployees(fetchedEmployees);
+        setAppointments(response.data.appointments || []);
         setLoading(false);
+
+        if ($.fn.DataTable.isDataTable("#myTable")) {
+          $("#myTable").DataTable().destroy();
+        }
+
+        $("#myTable").DataTable({
+          responsive: true,
+          lengthMenu: [5, 10, 25, 50],
+          pageLength: 10,
+          paging: true,
+          searching: true,
+          destroy: true,
+          dom: "Bfrtip",
+          buttons: [
+            {
+              extend: "csv",
+              text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV',
+              className: "btn btn-light",
+            },
+            {
+              extend: "pdf",
+              text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+              className: "btn btn-light",
+            },
+            {
+              extend: "print",
+              text: '<i class="bi bi-printer"></i> Print',
+              className: "btn btn-light",
+              customize: function (win) {
+                $(win.document.body)
+                  .find("table")
+                  .addClass("display")
+                  .css("font-size", "9pt");
+                $(win.document.body).find("h1").css("text-align", "center");
+                $(win.document.head).append(
+                  '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" type="text/css" />'
+                );
+              },
+            },
+          ],
+        });
       })
       .catch((error) => {
-        console.error("Error fetching employees:", error);
-        toast.error("Error fetching employees");
+        console.error("Error fetching appointments:", error);
+        toast.error("Error fetching appointments");
         setLoading(false);
       });
-  }, []);
 
-  useEffect(() => {
-    if (employees.length > 0) {
-      if ($.fn.DataTable.isDataTable("#myTable")) {
-        $("#myTable").DataTable().destroy();
-      }
-
-      $("#myTable").DataTable({
-        responsive: true,
-        lengthMenu: [5, 10, 25, 50],
-        pageLength: 10,
-        paging: true,
-        searching: true,
-        destroy: true,
-        dom: "Bfrtip",
-        buttons: [
-          {
-            extend: "csv",
-            text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV',
-            className: "btn btn-light",
-          },
-          {
-            extend: "pdf",
-            text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
-            className: "btn btn-light",
-          },
-          {
-            extend: "print",
-            text: '<i class="bi bi-printer"></i> Print',
-            className: "btn btn-light",
-          },
-        ],
-      });
-    }
-  }, [employees]);
-
-  useEffect(() => {
     return () => {
       if ($.fn.DataTable.isDataTable("#myTable")) {
         $("#myTable").DataTable().destroy();
       }
     };
   }, []);
-  
+
   return (
     <>
       <div className="pagetitle">
-        <h1>Employees</h1>
+        <h1>Appointments</h1>
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <Link href="/dashbaord">Dashboard</Link>
+              <Link to="/dashboard">Dashboard</Link>
             </li>
-            <li className="breadcrumb-item active">employees</li>
+            <li className="breadcrumb-item active">Appointments</li>
           </ol>
         </nav>
       </div>
@@ -167,15 +155,7 @@ const Employees = ({ onChange }) => {
             <div className="col-12">
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
-                
-                  <h5 className="card-title">Employee List</h5>
-                  <Link to={`/add_employee`}
-                  
-                    className="btn btn-outline-primary btn-sm"
-                    style={{ float: "right" }}
-                  >
-                    <i className="bi bi-person-plus"></i> Add Employee
-                  </Link>
+                  <h5 className="card-title">Appointments</h5>
 
                   {loading ? (
                     <div className="text-center">
@@ -187,41 +167,41 @@ const Employees = ({ onChange }) => {
                     <table className="table table-hover datatable" id="myTable">
                       <thead>
                         <tr>
-
                           <th>ID</th>
                           <th>Fullname</th>
-                          <th>Email</th>
-                          <th>Gender</th>
-                          <th>Department</th>
-                          <th>Position</th>
+                          <th>Destination</th>
+                          <th>Type</th>
+                          <th>Date</th>
+                          <th>Time</th>
                           <th>Status</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {employees && employees.length > 0 ? (
-                          employees.map((employee) => (
-                            <tr key={employee.employee_id}>
-                              <td>{employee.employee_id}</td>
-                              <td>{employee.fullname}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.gender}</td>
-                              <td>{employee.department}</td>
-                              <td>{employee.Position}</td>
+                        {appointments && appointments.length > 0 ? (
+                          appointments.map((appointment) => (
+                            <tr key={appointment.appointment_id}>
+                              <td>{appointment.appointment_id}</td>
+                              <td>{appointment.fullname}</td>
+                              <td>{appointment.destination}</td>
+                              <td>{appointment.appointment_type}</td>
+                              <td>{appointment.appointment_date}</td>
+                              <td>{appointment.appointment_time}</td>
                               <td>
                                 <span
                                   className={`badge ${
-                                    employee.status === "Active"
+                                    appointment.status === "Attended"
                                       ? "bg-success"
-                                      : employee.status === "Pending"
-                                      ? "bg-warning"
-                                      : employee.status === "Suspended" ||
-                                      employee.status === "Blocked"
+                                      : appointment.status === "Closed"
                                       ? "bg-danger"
-                                      : "bg-secondary"
+                                      : appointment.status === "Pending"
+                                      ? "bg-warning"
+                                      : appointment.status === "Cancelled"
+                                      ? "bg-danger"
+                                      :""
                                   }`}
                                 >
-                                  {employee.status}
+                                  {appointment.status}
                                 </span>
                               </td>
                               <td>
@@ -239,24 +219,32 @@ const Employees = ({ onChange }) => {
                                   >
                                     <li>
                                       <Link
-                                        to={`#`}
+                                        to={`/`}
                                         className="dropdown-item"
                                       
                                       >
-                                        <i className="bi bi-clipboard-data"></i> Performance
+                                       Reschedule
                                       </Link>
                                     </li>
-
-                                   
                                     <li>
                                       <Link
-                                        to={`#`}
+                                        to={`/`}
                                         className="dropdown-item"
-                                       
+                                      
                                       >
-                                        <i className="bi bi-clock"></i>TimeSheet
+                                       Cancel
                                       </Link>
                                     </li>
+                                    <li>
+                                      <Link
+                                        to={`/`}
+                                        className="dropdown-item"
+                                      
+                                      >
+                                       View
+                                      </Link>
+                                    </li>
+                                    
                                   </ul>
                                 </div>
                               </td>
@@ -265,7 +253,7 @@ const Employees = ({ onChange }) => {
                         ) : (
                           <tr>
                             <td colSpan="8" className="text-center">
-                              No users found!
+                              No appointments found!
                             </td>
                           </tr>
                         )}
@@ -283,4 +271,4 @@ const Employees = ({ onChange }) => {
   );
 };
 
-export default Employees;
+export default Appointment;

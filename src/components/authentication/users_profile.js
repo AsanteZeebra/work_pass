@@ -9,18 +9,17 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-
 // Define the validation schema using yup
 const schema = yup.object().shape({
   email: yup
     .string()
     .email("Invalid email format")
     .required("Email is required"),
-    role: yup
+  role: yup
     .string()
+    .notOneOf([""], "Role is required") // Prevent default empty value
     .required("Role is required"),
 });
-
 
 const UsersProfile = () => {
 
@@ -35,9 +34,15 @@ const UsersProfile = () => {
 
     const handleChange = (e) => {
       const { name, checked } = e.target;
+
       setStatus((prev) => {
-        const newState = { ...prev, [name]: checked };
-  
+        const newState = {
+          activate: false,
+          deactivate: false,
+          suspend: false,
+          [name]: checked, // Only the selected checkbox is updated
+        };
+
         // Prevent conflicting selections
         if (newState.activate && (newState.deactivate || newState.suspend)) {
           setError("You cannot activate and deactivate/suspend at the same time.");
@@ -134,21 +139,29 @@ const UsersProfile = () => {
     const fetchUserProfile = async () => {
       try {
         const response = await axios.get(
-          `http://localhost/wp_api/authentication/user_profile.php?user_id=${userId}`
+          `http://localhost/wp_api/authentication/user_profile.php`,
+          {
+            params: { uid: userId }
+          }
         );
-        if (response.data.status === "success") {
+    
+        console.log("API Response:", response.data); // Debugging log
+         console.log("User ID:", userId); // Debugging log
+        if (response.data.status === "success" && response.data.user) {
           setUser(response.data.user);
-          setPreview(response.data.user.profile_photo); // Set the preview to the user's profile photo
+          setPreview(response.data.user.profile_photo || null);
         } else {
-          toast.error(response.data.message);
+          toast.error(response.data.message || "User data not found");
         }
       } catch (err) {
-        toast.error("Failed to fetch user data");
+        console.error("Error fetching user data:", err.response?.data || err.message);
+        toast.error(err.response?.data?.message || "An error occurred while fetching user data");
       }
     };
+    
 
-    fetchUserProfile();
-  }, []);
+    fetchUserProfile(); // Call the function inside the useEffect
+  }, []); // Empty dependency array to run only once
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -220,7 +233,7 @@ const UsersProfile = () => {
     setLoading(true); // Set loading to true when form is submitted
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/authentication/request_reset.php",
+        "http://localhost/wp_api/authentication/request_reset.php",
         { email: data.email }
       );
       console.log("API response:", response.data); // Debugging log
@@ -234,7 +247,7 @@ const UsersProfile = () => {
       }
     } catch (error) {
       console.error("API error:", error.response?.data || error.message); // Debugging log
-      toast.error(error.response?.data.error || "An error occurred");
+      toast.error(error.response?.data?.error || "An error occurred");
     } finally {
       setLoading(false); // Set loading to false when API call is completed
     }
@@ -245,7 +258,7 @@ const UsersProfile = () => {
     try {
     
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/authentication/change_role.php",
+        "http://localhost/wp_api/authentication/change_role.php",
         { email: data.email }
       );
       console.log("API response:", response.data); // Debugging log
@@ -260,7 +273,7 @@ const UsersProfile = () => {
       }
     } catch (error) {
       console.error("API error:", error.response?.data || error.message); // Debugging log
-      toast.error(error.response?.data.error || "An error occurred");
+      toast.error(error.response?.data?.error || "An error occurred");
     } finally {
       setLoading(false); // Set loading to false when API call is completed
     }
@@ -336,6 +349,7 @@ const UsersProfile = () => {
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
+                onClick={() => setPreview(null)} // Reset preview on close
               >
                 Close
               </button>
@@ -526,6 +540,7 @@ const UsersProfile = () => {
                               className="form-control"
                               id="fullName"
                               value={user.fullname}
+                              onChange={(e) => setUser({ ...user, fullname: e.target.value })}
                             />
                           </div>
                         </div>
@@ -644,76 +659,29 @@ const UsersProfile = () => {
                   </div>
 
                   <div className="tab-pane fade pt-3" id="profile-settings">
-                    <form >
-                      <div className="row mb-4">
-                        <label
-                          for="fullName"
-                          className="col-md-4 col-lg-3 col-form-label"
-                        >
-                          Change Role:
-                        </label>
-                        <div className="col-md-6 col-lg-7">
-                     
-                          <select   {...register("role")} className={`form-control form-select ${errors.role ? "is-invalid" : ""}`}    {...register("role")} aria-label="Default select example">
-                           <option selected value=""> -select-</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Account">Account</option>
-                            <option value="Reception">Reception</option>
-                            <option value="staff">Staff</option>
-                            <option value="Agent">Agent</option>
-                           
+                  <form>
+
+<div className="row mb-3">
+  <label for="fullName" className="col-md-4 col-lg-3 col-form-label">Email Notifications</label>
+  <div className="col-md-8 col-lg-9">
+    <div className="form-check">
+      <input className="form-check-input" type="checkbox" id="changesMade"  /> 
+      <label className="form-check-label" for="changesMade">
+        Suspend Account
+      </label>
+    </div>
+    <div className="form-check">
+      <input className="form-check-input" type="checkbox" id="newProducts"  />
+      <label className="form-check-label" for="newProducts">
+        Exempt from salary
+      </label>
+    </div>
+   
+  </div>
+</div>
 
 
-                          </select>
-                      </div>
-                      </div>
-
-                      <div className="row mb-4">
-                        <label
-                          for="fullName"
-                          className="col-md-4 col-lg-3 col-form-label"
-                        >
-                          Account Status:
-                        </label>
-                        <div className="col-md-6 col-lg-7">
-
-                      
-                          <label style={{marginRight: "10px"}}>
-                          Activate 
-                          <input type="checkbox"  checked={status.activate}
-          onChange={handleChange} style={{marginLeft:"5px"}} name="activate" className={"form-check-input"} value="Activate" {...register("status")} />
-                          </label>
-                         
-                        
-
-                          <label style={{marginRight:"10px"}}>
-                          Deactivate
-                          <input type="checkbox"  checked={status.deactivate}
-          onChange={handleChange} style={{marginLeft:"5px"}} name="deactivate" className={"form-check-input"}  /> 
-                          
-                         
-                          </label>
-                      
-
-                     
-                          <label style={{marginRight:"10px"}}>
-                          Suspend 
-                         <input type="checkbox"  checked={status.suspend}
-          onChange={handleChange} style={{marginLeft:"5px"}} name="suspend" className={"form-check-input"}  />
-                         
-                          </label>
-                        
-                          {error && <p style={{ color: "red" }}>{error}</p>}
-                      </div>
-                      </div>
-
-                      <div className="text-center">
-                        <hr />
-                        <button type="submit" className="btn btn-primary">
-                          Save Changes
-                        </button>
-                      </div>
-                    </form>
+</form>
                   </div>
 
                   <div

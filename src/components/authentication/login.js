@@ -23,7 +23,7 @@ const [loading, setLoading] = useState(false); // State variable for loading
 const onSubmit = async (data) => {
     setLoading(true); // Set loading to true when form is submitted
     try {
-        const response = await fetch("http://main.fremikeconsult.com/authentication/authenticate.php", {
+        const response = await fetch("http://localhost/wp_api/authentication/authenticate.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),

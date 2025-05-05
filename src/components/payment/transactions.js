@@ -13,20 +13,17 @@ import "pdfmake"; // Required for PDF export
 import "pdfmake/build/vfs_fonts"; // PDF fonts
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { ClipLoader } from "react-spinners";
+
 // CSS Imports
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 
 
-const Employees = ({ onChange }) => {
+const Transactions = () => {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
-  const [employees, SetEmployees] = useState([]);
+  const [transactions, SetTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   
 
@@ -88,76 +85,90 @@ const Employees = ({ onChange }) => {
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
 
-
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/employees/fetch_employees.php")
+      .get("http://localhost/wp_api/payment/fetch_transactions.php")
       .then((response) => {
-        const fetchedEmployees = response.data.employees || [];
-        SetEmployees(fetchedEmployees);
+        SetTransactions(response.data.transactions);
         setLoading(false);
+
+      
+
+        // Initialize DataTable after data is fetched
+        $("#myTable").DataTable({
+          responsive: true,
+          lengthMenu: [5, 10, 25, 50],
+          pageLength: 10,
+          paging: true,
+          searching: true,
+          destroy: true,
+          dom: "Bfrtip",
+          buttons: [
+            {
+              extend: "csv",
+              text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV',
+              className: "btn btn-light",
+            },
+            {
+              extend: "pdf",
+              text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+              className: "btn btn-light",
+            },
+            {
+              extend: "print",
+              text: '<i class="bi bi-printer"></i> Print',
+              className: "btn btn-light",
+              customize: function (win) {
+                $(win.document.body)
+                  .find("table")
+                  .addClass("display")
+                  .css("font-size", "9pt");
+                $(win.document.body).find("h1").css("text-align", "center");
+                $(win.document.head).append(
+                  '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" type="text/css" />'
+                );
+              },
+            },
+          ],
+        });
       })
       .catch((error) => {
-        console.error("Error fetching employees:", error);
-        toast.error("Error fetching employees");
+        console.error("Error fetching users:", error);
+        toast.error("Error fetching users");
         setLoading(false);
       });
-  }, []);
 
-  useEffect(() => {
-    if (employees.length > 0) {
-      if ($.fn.DataTable.isDataTable("#myTable")) {
-        $("#myTable").DataTable().destroy();
-      }
-
-      $("#myTable").DataTable({
-        responsive: true,
-        lengthMenu: [5, 10, 25, 50],
-        pageLength: 10,
-        paging: true,
-        searching: true,
-        destroy: true,
-        dom: "Bfrtip",
-        buttons: [
-          {
-            extend: "csv",
-            text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV',
-            className: "btn btn-light",
-          },
-          {
-            extend: "pdf",
-            text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
-            className: "btn btn-light",
-          },
-          {
-            extend: "print",
-            text: '<i class="bi bi-printer"></i> Print',
-            className: "btn btn-light",
-          },
-        ],
-      });
-    }
-  }, [employees]);
-
-  useEffect(() => {
+    // Cleanup DataTable on component unmount
     return () => {
       if ($.fn.DataTable.isDataTable("#myTable")) {
         $("#myTable").DataTable().destroy();
       }
     };
   }, []);
-  
+
+  const handledata = (
+    passport_no,
+    fullname,
+    email,
+   
+  ) => {
+    localStorage.setItem("passport_no", passport_no);
+    localStorage.setItem("fullname", fullname);
+    localStorage.setItem("email", email);
+ 
+  };
+
   return (
     <>
       <div className="pagetitle">
-        <h1>Employees</h1>
+        <h1>Payment</h1>
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <Link href="/dashbaord">Dashboard</Link>
+              <Link href="/dashboard">payment</Link>
             </li>
-            <li className="breadcrumb-item active">employees</li>
+            <li className="breadcrumb-item active">transactions</li>
           </ol>
         </nav>
       </div>
@@ -168,14 +179,8 @@ const Employees = ({ onChange }) => {
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
                 
-                  <h5 className="card-title">Employee List</h5>
-                  <Link to={`/add_employee`}
+                  <h5 className="card-title">Transactions</h5>
                   
-                    className="btn btn-outline-primary btn-sm"
-                    style={{ float: "right" }}
-                  >
-                    <i className="bi bi-person-plus"></i> Add Employee
-                  </Link>
 
                   {loading ? (
                     <div className="text-center">
@@ -190,38 +195,40 @@ const Employees = ({ onChange }) => {
 
                           <th>ID</th>
                           <th>Fullname</th>
-                          <th>Email</th>
-                          <th>Gender</th>
-                          <th>Department</th>
-                          <th>Position</th>
+                          <th>Destination</th>
+                          <th>Type</th>                         
+                          <th>Date</th>
+                          <th>Amount</th>
                           <th>Status</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {employees && employees.length > 0 ? (
-                          employees.map((employee) => (
-                            <tr key={employee.employee_id}>
-                              <td>{employee.employee_id}</td>
-                              <td>{employee.fullname}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.gender}</td>
-                              <td>{employee.department}</td>
-                              <td>{employee.Position}</td>
+                        {transactions && transactions.length > 0 ? (
+                          transactions.map((transaction) => (
+                            <tr key={transaction.transaction_id}>
+                                 <td>{transaction.transaction_id}</td>
+                              <td>{transaction.fullname}</td>
+                              <td>{transaction.destination}</td>
+                              <td>{transaction.type}</td>
+                              <td>{transaction.created_at}</td>
+                              <td>{transaction.amount}</td>
+                            
                               <td>
                                 <span
                                   className={`badge ${
-                                    employee.status === "Active"
+                                    transaction.status === "Paid"
                                       ? "bg-success"
-                                      : employee.status === "Pending"
+                                      : transaction.status === "Pending"
                                       ? "bg-warning"
-                                      : employee.status === "Suspended" ||
-                                      employee.status === "Blocked"
+                                     
+                                      : transaction.status === "Refunded" ||
+                                      transaction.status === "Hold"
                                       ? "bg-danger"
                                       : "bg-secondary"
                                   }`}
                                 >
-                                  {employee.status}
+                                  {transaction.status}
                                 </span>
                               </td>
                               <td>
@@ -239,22 +246,18 @@ const Employees = ({ onChange }) => {
                                   >
                                     <li>
                                       <Link
-                                        to={`#`}
+                                        to={`/`}
                                         className="dropdown-item"
-                                      
+                                        onClick={() =>
+                                          handledata(
+                                            transaction.transaction_id,
+                                            transaction.fullname,
+                                            transaction.email,
+                                           
+                                          )
+                                        }
                                       >
-                                        <i className="bi bi-clipboard-data"></i> Performance
-                                      </Link>
-                                    </li>
-
-                                   
-                                    <li>
-                                      <Link
-                                        to={`#`}
-                                        className="dropdown-item"
-                                       
-                                      >
-                                        <i className="bi bi-clock"></i>TimeSheet
+                                        Print
                                       </Link>
                                     </li>
                                   </ul>
@@ -283,4 +286,4 @@ const Employees = ({ onChange }) => {
   );
 };
 
-export default Employees;
+export default Transactions;

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect,useCallback  } from "react";
 import  {jwtDecode} from "jwt-decode";
 import axios from 'axios';
-
+import ReactApexChart from "react-apexcharts";
 
 const Dashboard = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -68,7 +68,120 @@ const Dashboard = () => {
   }, [token, navigate, handleLogout]); // ✅ Now handleLogout is included
  
 
+  const chartOptions = {
+    chart: {
+      id: 'basic-line',
+      height: 350,
+      type: 'area',
+      toolbar: {
+        show: false
+      },
+    },
+    markers: {
+      size: 4
+    },
+    colors: ['#4154f1', '#2eca6a', '#ff771d'],
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.3,
+        opacityTo: 0.4,
+        stops: [0, 90, 100]
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 2
+    },
+    xaxis: {
+      categories: [1991, 1992, 1993, 1994, 1995]
+    }
+  };
+
+  const chartSeries = [
+    {
+      name: 'series-1',
+      data: [30, 40, 45, 50, 49]
+    },
+    {
+      name: 'series-2',
+      data: [50, 60, 75, 80, 90]
+    }
+  ];
   
+
+  const chartOptionsarea = {
+    chart: {
+      id: 'basic-radar',
+      toolbar: {
+        show: false
+      },
+    },
+    markers: {
+      size: 4
+    },
+    colors: ['#4154f1', '#2eca6a', '#ff771d'],
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.3,
+        opacityTo: 0.4,
+        stops: [0, 90, 100]
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 2
+    },
+    xaxis: {
+      categories: ['January', 'February', 'March', 'April', 'May']
+    }
+  
+  };
+
+  const chartSeriesarea = [
+    {
+      name: 'series-1',
+      data: [30, 40, 45, 50, 49]
+    },
+    {
+      name: 'series-1',
+      data: [10, 30, 20, 70, 66]
+    }
+  ];
+
+
+  const [chartOptionspolar, setChartOptions] = useState({
+    chart: {
+      id: 'static-polar-area',
+      type: 'polarArea'
+    },
+    markers: {
+      size: 4
+    },
+    colors: ['#4154f1', '#2eca6a', '#ff771d'],
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.3,
+        opacityTo: 0.4,
+        stops: [0, 90, 100]
+      }
+    },
+    labels: ['1991', '1992', '1993', '1994', '1995'] // Static labels
+  });
+
+  const [chartSeriespolar, setChartSeries] = useState([30, 40, 45, 50, 49]); // Static series
+
 
     return(
 <>
@@ -218,7 +331,7 @@ const Dashboard = () => {
                   <h5 className="card-title">Reports <span>/Today</span></h5>
 
                 
-                  <div id="reportsChart"></div>
+                  <ReactApexChart options={chartOptions} series={chartSeries} type="area" height={350} />
 
                
 
@@ -472,8 +585,7 @@ const Dashboard = () => {
             <div className="card-body pb-0">
               <h5 className="card-title">Budget Report <span>| This Month</span></h5>
 
-              <div id="budgetChart" style={{minHeight: "400px;"}} className="echart"></div>
-
+              <ReactApexChart options={chartOptionsarea} series={chartSeriesarea} type="radar" height={350} />
             
 
             </div>
@@ -497,64 +609,13 @@ const Dashboard = () => {
             <div className="card-body pb-0">
               <h5 className="card-title">Website Traffic <span>| Today</span></h5>
 
-              <div id="trafficChart" style={{minHeight: "400px"}} className="echart"></div>
-
+              <ReactApexChart options={chartOptionspolar} series={chartSeriespolar} type="polarArea" height={350} />
+           
             </div>
           </div>
 
         
-          <div className="card">
-            <div className="filter">
-              <Link className="icon" to="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></Link>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li className="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><Link className="dropdown-item" to="#">Today</Link></li>
-                <li><Link className="dropdown-item" to="#">This Month</Link></li>
-                <li><Link className="dropdown-item" to="#">This Year</Link></li>
-              </ul>
-            </div>
-
-            <div className="card-body pb-0">
-              <h5 className="card-title">News &amp; Updates <span>| Today</span></h5>
-
-              <div className="news">
-                <div className="post-item clearfix">
-                  <img src="assets/img/news-1.jpg" alt=""/>
-                  <h4><Link to="#">Nihil blanditiis at in nihil autem</Link></h4>
-                  <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
-                </div>
-
-                <div className="post-item clearfix">
-                  <img src="assets/img/news-2.jpg" alt=""/>
-                  <h4><Link to="#">Quidem autem et impedit</Link></h4>
-                  <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
-                </div>
-
-                <div className="post-item clearfix">
-                  <img src="assets/img/news-3.jpg" alt=""/>
-                  <h4><Link to="#">Id quia et et ut maxime similique occaecati ut</Link></h4>
-                  <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
-                </div>
-
-                <div className="post-item clearfix">
-                  <img src="assets/img/news-4.jpg" alt=""/>
-                  <h4><Link to="#">Laborum corporis quo dara net para</Link></h4>
-                  <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
-                </div>
-
-                <div className="post-item clearfix">
-                  <img src="assets/img/news-5.jpg" alt=""/>
-                  <h4><Link to="#">Et dolores corrupti quae illo quod dolor</Link></h4>
-                  <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
+        
 
         </div>
 

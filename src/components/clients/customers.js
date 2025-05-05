@@ -42,7 +42,7 @@ const Customers = ({ onChange }) => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
+          "http://localhost/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -120,7 +120,7 @@ const Customers = ({ onChange }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/Clients/add_client.php",
+        "http://localhost/wp_api/Clients/add_client.php",
         {
           fullname: data.fullname,
           email: data.email,
@@ -157,7 +157,7 @@ const Customers = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://main.fremikeconsult.com/wp_api/clients/fetch_customers.php")
+      .get("http://localhost/wp_api/clients/fetch_customers.php")
       .then((response) => {
         setUsers(response.data.users);
         setLoading(false);

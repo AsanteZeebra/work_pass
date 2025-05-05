@@ -20,11 +20,14 @@ import { ClipLoader } from "react-spinners";
 // CSS Imports
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
+import ReactApexChart from "react-apexcharts";
+
 
 const Overview = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+ 
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -37,7 +40,7 @@ const Overview = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
+          "http://localhost/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -111,7 +114,7 @@ const Overview = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/clients/add_client.php",
+        "http://localhost/wp_api/clients/add_client.php",
         {
           fullname: data.fullname,
           email: data.email,
@@ -146,7 +149,7 @@ const Overview = () => {
 
   useEffect(() => {
     axios
-      .get("http://main.fremikeconsult.com/wp_api/clients/fetch_customers.php")
+      .get("http://localhost/wp_api/clients/fetch_customers.php")
       .then((response) => {
         setUsers(response.data.users);
         setLoading(false);
@@ -227,7 +230,7 @@ const Overview = () => {
   const fetchcount = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/Clients/count_cases.php",
+        "http://localhost/wp_api/Clients/count_cases.php",
         {
           headers: {
             "Content-Type": "application/json",
@@ -260,7 +263,7 @@ const Overview = () => {
   const fecthPercentage = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/Clients/calculate_cases_percentages.php",
+        "http://localhost/wp_api/Clients/calculate_cases_percentages.php",
         {
           headers: {
             "Content-Type": "application/json",
@@ -284,6 +287,47 @@ const Overview = () => {
     }
   };
 
+
+  const chartOptions = {
+    chart: {
+      id: 'basic-line',
+      height: 350,
+      type: 'area',
+      toolbar: {
+        show: false
+      },
+    },
+    markers: {
+      size: 4
+    },
+    colors: ['#4154f1', '#2eca6a', '#ff771d'],
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.3,
+        opacityTo: 0.4,
+        stops: [0, 90, 100]
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 2
+    },
+    xaxis: {
+      categories: [1991, 1992, 1993, 1994, 1995]
+    }
+  };
+
+  const chartSeries = [
+    {
+      name: 'series-1',
+      data: [30, 40, 45, 50, 49]
+    }
+  ];
   return (
     <>
       <div className="pagetitle">
@@ -528,7 +572,9 @@ const Overview = () => {
                   <h5 className="card-title">
                     Reports <span>/This Month</span>
                   </h5>
-                  <div id="reportsChart"></div>
+                 <ReactApexChart options={chartOptions} series={chartSeries} type="area" height={350} />
+                
+                  
                 </div>
               </div>
             </div>

@@ -135,7 +135,7 @@ const Assign_case = ({ onChange }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/cases/create_case.php",
+        "http://localhost/wp_api/cases/create_case.php",
         {
           fullname: data.fullname,
           case_id: data.case_id,
@@ -168,7 +168,7 @@ const Assign_case = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://main.fremikeconsult.com/wp_api/cases/fetch_all_cases.php")
+      .get("http://localhost/wp_api/cases/fetch_all_cases.php")
       .then((response) => {
         setUsers(response.data.cases);
 
@@ -242,7 +242,7 @@ const Assign_case = ({ onChange }) => {
   const fetchCaseInfo = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/cases/fetch_all_cases.php",
+        "http://localhost/wp_api/cases/fetch_all_cases.php",
 
         {
           headers: {
@@ -264,7 +264,7 @@ const Assign_case = ({ onChange }) => {
   const fetchStaffInfo = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/employees/fetch_employees.php",
+        "http://localhost/wp_api/employees/fetch_employees.php",
 
         {
           headers: {

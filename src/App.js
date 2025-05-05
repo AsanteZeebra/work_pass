@@ -18,6 +18,10 @@ import ActivityLogs from './components/cases/activity_logs';
 import Statement from './components/payroll/statement';
 import Passpots_info from './components/passport/passports';
 import Request from './components/passport/request';
+import Passport_overview from './components/passport/passport_overview';
+import Payment from './components/payment/payment';
+import Transactions from './components/payment/transactions';
+import Appointment from './components/appointment/appointment';
 
 import { useState } from 'react';
 
@@ -49,11 +53,20 @@ function App() {
       <Route path="/add_employee" element={<Layout><Add_employee token={token} /></Layout>} />
       <Route path="/employee_list" element={<Layout><Employees token={token} /></Layout>} />
       <Route path="/payroll" element={<Layout><Payroll token={token} /></Layout>} />
+
       <Route path="/pay_salary" element={<Layout><Pay_salary token={token}/></Layout>} />
       <Route path="/statement" element={<Layout><Statement token={token}/></Layout>} />
+
       <Route path="/activity_logs" element={<Layout><ActivityLogs token={token}/></Layout>} />
+
       <Route path="/passports_info" element={<Layout><Passpots_info token={token}/></Layout>} />
+      <Route path="/passport_overview" element={<Layout><Passport_overview token={token}/></Layout>} />
       <Route path="/request" element={<Layout><Request token={token}/></Layout>} />
+      
+      <Route path="/payment" element={<Layout><Payment token={token}/></Layout>} />
+      <Route path="/transactions" element={<Layout><Transactions token={token}/></Layout>} />
+      <Route path="/appointment" element={<Layout><Appointment token={token}/></Layout>} />
+
 
      
 

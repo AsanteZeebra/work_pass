@@ -81,9 +81,14 @@ const Sidebar = () => {
               <i className="bi bi-passport"></i><span>Passports</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="passports-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
+            <li>
+                <Link to="/passport_overview">
+                  <i className="bi bi-circle"></i><span>Overview</span>
+                </Link>
+              </li>
               <li>
                 <Link to="/passports_info">
-                  <i className="bi bi-circle"></i><span>All Passports</span>
+                  <i className="bi bi-circle"></i><span>Search passport</span>
                 </Link>
               </li>
             
@@ -96,20 +101,16 @@ const Sidebar = () => {
             </Link>
             <ul id="payment-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="charts-chartjs.html">
-                  <i className="bi bi-circle"></i><span>Record Payment</span>
+                <Link to="/payment">
+                  <i className="bi bi-circle"></i><span>overview</span>
                 </Link>
               </li>
               <li>
-                <Link to="charts-apexcharts.html">
-                  <i className="bi bi-circle"></i><span>Process Refund</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="charts-echarts.html">
+                <Link to="/transactions">
                   <i className="bi bi-circle"></i><span>Transactions</span>
                 </Link>
               </li>
+             
             </ul>
           </li>
 
@@ -118,21 +119,13 @@ const Sidebar = () => {
               <i className="bi bi-calendar2-week"></i><span>Appointment</span><i className="bi bi-chevron-down ms-auto"></i>
             </Link>
             <ul id="appointment-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
+             
               <li>
-                <Link to="icons-bootstrap.html">
-                  <i className="bi bi-circle"></i><span>Add Appointment</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="icons-remix.html">
+                <Link to="/appointment">
                   <i className="bi bi-circle"></i><span>Manage Appointments</span>
                 </Link>
               </li>
-              <li>
-                <Link to="icons-boxicons.html">
-                  <i className="bi bi-circle"></i><span>Overview</span>
-                </Link>
-              </li>
+             
             </ul>
           </li>
 
@@ -143,17 +136,18 @@ const Sidebar = () => {
             <ul id="access-control-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
                 <Link to="icons-bootstrap.html">
-                  <i className="bi bi-circle"></i><span>Add User</span>
+                  <i className="bi bi-circle"></i><span> User Accounts</span>
                 </Link>
               </li>
               <li>
-                <Link to="icons-remix.html">
-                  <i className="bi bi-circle"></i><span>Assign Role</span>
+                <Link to="icons-bootstrap.html">
+                  <i className="bi bi-circle"></i><span>Roles</span>
                 </Link>
               </li>
+             
               <li>
-                <Link to="icons-boxicons.html">
-                  <i className="bi bi-circle"></i><span>Change Password</span>
+                <Link to="icons-bootstrap.html">
+                  <i className="bi bi-circle"></i><span>Audit Logs</span>
                 </Link>
               </li>
             </ul>

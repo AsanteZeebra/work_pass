@@ -28,7 +28,7 @@ const Create_Account = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/authentication/create_user.php",
+        "http://localhost/wp_api/authentication/create_user.php",
         {
           fullname: data.fullname,
           email: data.email,
