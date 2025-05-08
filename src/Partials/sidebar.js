@@ -135,18 +135,18 @@ const Sidebar = () => {
             </Link>
             <ul id="access-control-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
-                <Link to="icons-bootstrap.html">
-                  <i className="bi bi-circle"></i><span> User Accounts</span>
+                <Link to="/account_settings">
+                  <i className="bi bi-circle"></i><span>Accounts Settings</span>
                 </Link>
               </li>
               <li>
-                <Link to="icons-bootstrap.html">
+                <Link to="">
                   <i className="bi bi-circle"></i><span>Roles</span>
                 </Link>
               </li>
              
               <li>
-                <Link to="icons-bootstrap.html">
+                <Link to="">
                   <i className="bi bi-circle"></i><span>Audit Logs</span>
                 </Link>
               </li>

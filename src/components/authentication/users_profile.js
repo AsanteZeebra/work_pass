@@ -175,41 +175,58 @@ const UsersProfile = () => {
       toast.error("User ID not found. Please log in again.");
       return;
     }
-
+  
     if (!selectedFile) {
       toast.error("No file selected. Please select a file first.");
       return;
     }
-
+  
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.error("Invalid file type. Please upload a JPEG, PNG, or GIF image.");
+      return;
+    }
+  
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (selectedFile.size > maxSize) {
+      toast.error("File size exceeds the 5MB limit. Please upload a smaller file.");
+      return;
+    }
+  
     const formData = new FormData();
     formData.append("user_id", userId);
     formData.append("profile_photo", selectedFile);
-
+  
     setUploading(true);
     axios
-      .post(
-        `http://localhost/wp_api/authentication/upload_profile.php?user_id=${userId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      )
+      .post("http://localhost/wp_api/authentication/upload_profile.php", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((response) => {
-        toast.success(response.data.message);
-        console.log(response.data);
-        setUser((prevUser) => ({
-          ...prevUser,
-          profile_photo: response.data.profile_photo,
-        }));
-        setPreview(response.data.profile_photo); // Update the preview with the uploaded photo URL
+        console.log("Upload response:", response.data);
+        if (response.data.status === "success") {
+          toast.success(response.data.message);
+          setUser((prevUser) => ({
+            ...prevUser,
+            profile_photo: response.data.photo_url,
+          }));
+          setPreview(response.data.photo_url);
+        } else {
+          console.error("API returned an error:", response.data);
+          toast.error(response.data.error || "An error occurred while uploading the photo");
+        }
       })
       .catch((err) => {
-        toast.error(err.response.data.message);
+        console.error("Error in catch block:", err);
+        toast.error(err.response?.data?.message || "An error occurred while uploading the photo");
       })
       .finally(() => {
         setUploading(false);
       });
   };
+  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -417,9 +434,7 @@ const UsersProfile = () => {
                       Edit Profile
                     </button>
                   </li>
-                  <li className="nav-item">
-                  <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
-                </li>
+                 
                   <li className="nav-item">
                     <button
                       className="nav-link"
@@ -658,31 +673,26 @@ const UsersProfile = () => {
                     )}
                   </div>
 
-                  <div className="tab-pane fade pt-3" id="profile-settings">
-                  <form>
+                  
 
-<div className="row mb-3">
-  <label for="fullName" className="col-md-4 col-lg-3 col-form-label">Email Notifications</label>
-  <div className="col-md-8 col-lg-9">
-    <div className="form-check">
-      <input className="form-check-input" type="checkbox" id="changesMade"  /> 
-      <label className="form-check-label" for="changesMade">
-        Suspend Account
-      </label>
-    </div>
-    <div className="form-check">
-      <input className="form-check-input" type="checkbox" id="newProducts"  />
-      <label className="form-check-label" for="newProducts">
-        Exempt from salary
-      </label>
-    </div>
-   
-  </div>
-</div>
-
-
-</form>
+                  <div className="modal fade" id="vt" tabindex="-1">
+                <div className="modal-dialog modal-dialog-centered">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Make this changes?</h5>
+                      <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div className="modal-body">
+                     Are you sure you want to suspend this account? This action cannot be undone.
+                    </div>
+                    <div>
+                      <button type="button" className="btn btn-primary">Take Action</button>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+
 
                   <div
                     className="tab-pane fade pt-3"

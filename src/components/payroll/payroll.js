@@ -24,11 +24,10 @@ const Payroll = () => {
   const [employees, SetEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Memoize handleLogout to prevent re-creation
+ 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("token"); // Remove token from localStorage
-    localStorage.removeItem("username"); // Remove username from localStorage
-    localStorage.clear();
+    setToken(null); // Set token state to null
+    localStorage.clear(); // Clear all items from localStorage
     navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
@@ -36,7 +35,7 @@ const Payroll = () => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          "http://main.fremikeconsult.com/wp_api/authentication/verify_token.php",
+          "http://localhost/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
@@ -46,10 +45,10 @@ const Payroll = () => {
           }
         );
 
-        //console.log("Token is valid:", response.data);
+        console.log("Token is valid:", response.data);
       } catch (error) {
-        //console.error("Token validation error:", error);
-        toast.success("Unauthorized", error);
+        console.error("Token validation error:", error);
+        toast.error("Token validation error");
         handleLogout();
       }
     };
@@ -75,17 +74,20 @@ const Payroll = () => {
         }
       } catch (error) {
         console.error("Error decoding token:", error);
+        toast.error("Error decoding token");
         handleLogout();
       }
     } else {
       navigate("/login");
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
+ 
 
+  
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://main.fremikeconsult.com/wp_api/payroll/fetch_salaries.php")
+      .get("http://localhost/wp_api/payroll/fetch_salaries.php")
       .then((response) => {
         SetEmployees(response.data.employees);
         setLoading(false);
@@ -167,7 +169,7 @@ const Payroll = () => {
   const fecthPercentage = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/employees/percentage_indicator.php",
+        "http://localhost/wp_api/employees/percentage_indicator.php",
         {
           headers: {
             "Content-Type": "application/json",
@@ -194,7 +196,7 @@ const Payroll = () => {
   const fetchcount = async () => {
     try {
       const response = await axios.get(
-        "http://main.fremikeconsult.com/wp_api/employees/count_employees.php",
+        "http://localhost/wp_api/employees/count_employees.php",
         {
           headers: {
             "Content-Type": "application/json",

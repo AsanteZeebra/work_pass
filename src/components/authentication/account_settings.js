@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useCallback } from "react";
-import {jwtDecode} from "jwt-decode";
-import axios from 'axios';
-import $ from "jquery";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import $, { data } from "jquery";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "datatables.net-bs5";
 import "datatables.net-buttons-bs5"; // DataTables Buttons with Bootstrap styling
 import "datatables.net-buttons/js/dataTables.buttons"; // Core buttons feature
@@ -25,31 +25,29 @@ const Account_Settings = () => {
   const [loading, setLoading] = useState(true);
 
   const handleLogout = useCallback(() => {
-   
     setToken(null); // Set token state to null
     localStorage.clear(); // Clear all items from localStorage
-    navigate('/login'); // Redirect to login page
+    navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
   useEffect(() => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
-          'http://localhost/wp_api/authentication/verify_token.php',
+          "http://localhost/wp_api/authentication/verify_token.php",
           {}, // Empty body since it's a POST request
           {
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
-        console.log('Token is valid:', response.data);
-        
+        console.log("Token is valid:", response.data);
       } catch (error) {
-        console.error('Token validation error:', error);
-        toast.error('Token validation error');
+        console.error("Token validation error:", error);
+        toast.error("Token validation error");
         handleLogout();
       }
     };
@@ -74,18 +72,19 @@ const Account_Settings = () => {
           return () => clearTimeout(logoutTimer);
         }
       } catch (error) {
-        console.error('Error decoding token:', error);
-        toast.error('Error decoding token');
+        console.error("Error decoding token:", error);
+        toast.error("Error decoding token");
         handleLogout();
       }
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   }, [token, navigate, handleLogout]); // Now handleLogout is included
 
   useEffect(() => {
-    axios.get('http://localhost/wp_api/authentication/fetch_users.php')
-      .then(response => {
+    axios
+      .get("http://localhost/wp_api/authentication/fetch_users.php")
+      .then((response) => {
         setUsers(response.data.users);
         setLoading(false);
         // Initialize DataTable after data is fetched
@@ -119,9 +118,9 @@ const Account_Settings = () => {
           ],
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching users:", error);
-        toast.error('Error fetching users');
+        toast.error("Error fetching users");
         setLoading(false);
       });
 
@@ -133,7 +132,7 @@ const Account_Settings = () => {
     };
   }, []);
 
-  const handleViewProfile = (uid,email) => {
+  const handleViewProfile = (uid, email) => {
     localStorage.setItem("uid", uid);
     localStorage.setItem("email", email);
   };
@@ -145,7 +144,9 @@ const Account_Settings = () => {
         <h1>Account</h1>
         <nav>
           <ol className="breadcrumb">
-            <li className="breadcrumb-item"><a href="index.html">Account</a></li>
+            <li className="breadcrumb-item">
+              <a href="index.html">Account</a>
+            </li>
             <li className="breadcrumb-item active">Settings</li>
           </ol>
         </nav>
@@ -153,7 +154,7 @@ const Account_Settings = () => {
       <div className="row">
         <div className="col-lg-12">
           <div className="row">
-            <div className="col-xxl-3">
+            <div className="col-xxl-3" hidden>
               <div className="card info-card sales-card">
                 <div className="card-body">
                   <h5 className="card-title">
@@ -170,7 +171,7 @@ const Account_Settings = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xxl-3">
+            <div className="col-xxl-3" hidden>
               <div className="card info-card revenue-card">
                 <div className="card-body">
                   <h5 className="card-title">
@@ -187,7 +188,7 @@ const Account_Settings = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xxl-3">
+            <div className="col-xxl-3" hidden>
               <div className="card info-card suspect-card .card-icon ">
                 <div className="card-body">
                   <h5 className="card-title">
@@ -204,7 +205,7 @@ const Account_Settings = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xxl-3">
+            <div className="col-xxl-3" hidden>
               <div className="card info-card banned-card">
                 <div className="card-body">
                   <h5 className="card-title">
@@ -221,6 +222,7 @@ const Account_Settings = () => {
                 </div>
               </div>
             </div>
+
             <div className="col-12">
               <div className="card recent-sales overflow-auto">
                 <div className="card-body">
@@ -242,34 +244,70 @@ const Account_Settings = () => {
                           <th>Email</th>
                           <th>Role</th>
                           <th>Status</th>
-                          <th><i className="bi bi-menu"></i></th>
+                          <th>
+                            <i className="bi bi-menu"></i>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {users.length > 0 ? (
-                          users.map(user => (
+                          users.map((user) => (
                             <tr key={user.uid}>
                               <td>{user.uid}</td>
                               <td>{user.fullname}</td>
                               <td>{user.email}</td>
                               <td>{user.role}</td>
                               <td>
-                                <span className={`badge ${user.status === 'active' ? 'bg-success' : 'bg-danger'}`}>
+                                <span
+                                  className={`badge ${
+                                    user.status === "active"
+                                      ? "bg-success"
+                                      : "bg-danger"
+                                  }`}
+                                >
                                   {user.status}
                                 </span>
                               </td>
                               <td>
                                 <div className="dropdown">
-                                  <i className="bi bi-three-dots-vertical" id={`dropdownMenuButton${user.uid}`} data-bs-toggle="dropdown" aria-expanded="false" style={{ cursor: 'pointer' }}></i>
-                                  <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton${user.uid}`}>
+                                  <i
+                                    className="bi bi-three-dots-vertical"
+                                    id={`dropdownMenuButton${user.uid}`}
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style={{ cursor: "pointer" }}
+                                  ></i>
+                                  <ul
+                                    className="dropdown-menu"
+                                    aria-labelledby={`dropdownMenuButton${user.uid}`}
+                                  >
                                     <li>
-                                      <Link to={`/users_profile`} className="dropdown-item" onClick={() => handleViewProfile(user.uid,user.email)}>
-                                        <i className="bi bi-eye"></i> View
+                                      <Link
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleViewProfile(
+                                            user.uid,
+                                            user.email
+                                          ) 
+                                        } data-bs-toggle="modal"
+                                          data-bs-target="#vvt"
+                                      >
+                                        Settings
                                       </Link>
                                     </li>
+                                  
                                     <li>
-                                      <Link to={`/users-edit/${user.uid}`} className="dropdown-item">
-                                        <i className="bi bi-gear"></i> Settings
+                                      <Link
+                                        to={`/users_profile`}
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          handleViewProfile(
+                                            user.uid,
+                                            user.email
+                                          )
+                                        }
+                                      >
+                                        View profile
                                       </Link>
                                     </li>
                                   </ul>
@@ -287,6 +325,73 @@ const Account_Settings = () => {
                       </tbody>
                     </table>
                   )}
+
+                  <div
+                    className="modal fade"
+                    id="vvt"
+                    tabindex="-1"
+                  >
+                    <div className="modal-dialog modal-dialog-centered">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <h5 className="modal-title">Change Role</h5>
+                          <button
+                            type="button"
+                            className="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div className="modal-body">
+                         <form>
+
+                      <div className="row mb-3"> 
+                       <div className="col-12">
+                       <div className="form-group">
+                          <b>
+                            <label> Role</label>
+                          </b>
+                         <select className="form-select" >
+                           <option>-Select-</option>
+                           <option value={"Admin"}>Admin</option>
+                           <option value={"Account"}>Account</option>
+                           <option value={"Reception"}>Reception</option>
+                           <option value={"Manager"}>Manager</option>
+                         </select>
+                        </div>
+                        </div>
+
+                        <div className="col-12" style={{ marginTop: "20px" }}>
+                       <div className="form-group">
+                          <b>
+                            <label> Status</label>
+                          </b>
+                         <select className="form-select" >
+                           <option>-Select-</option>
+                           <option value={"Active"}>Activate</option>
+                           <option value={"Suspended"}>Suspend</option>
+                          
+                         </select>
+                        </div>
+                        </div>
+                      </div>
+                         </form>
+                        </div>
+                        <div className="modal-footer">
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                          <button type="button" className="btn btn-primary">
+                            Save changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,6 +400,6 @@ const Account_Settings = () => {
       </div>
     </>
   );
-}
+};
 
 export default Account_Settings;

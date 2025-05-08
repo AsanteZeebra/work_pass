@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 const Header = () => {
   const [username, setUsername] = useState(localStorage.getItem("username") || "");
+  const [role,setRole] = useState(localStorage.getItem("role") || "");
 
   useEffect(() => {
     setUsername(localStorage.getItem("username")); // Ensure username updates when component mounts
@@ -63,8 +64,8 @@ const Header = () => {
   return (
     <header id="header" className="header fixed-top d-flex align-items-center">
       <div className="d-flex align-items-center justify-content-between">
-        <Link to="index.html" className="logo d-flex align-items-center">
-          <img src="assets/img/logo.png" alt="" />
+        <Link to="/dashboard" className="logo d-flex align-items-center">
+          <img src="assets/img/wps.png" alt="" />
           
           <span className="d-none d-lg-block">WorkPass</span>
         </Link>
@@ -75,7 +76,7 @@ const Header = () => {
         <ul className="d-flex align-items-center">
           <li className="nav-item dropdown pe-3">
             <Link className="nav-link nav-profile d-flex align-items-center pe-0" to="#" data-bs-toggle="dropdown">
-              <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle" />
+              <img src="assets/img/prophoto.jpg" alt="Profile" className="rounded-circle" />
               <span className="d-none d-md-block dropdown-toggle ps-2">
                 {username || "Guest"}
               </span>
@@ -84,18 +85,12 @@ const Header = () => {
             <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
               <li className="dropdown-header">
                 <h6>{username || "Guest"}</h6>
-                <span>Web Designer</span>
+                <span>{role}</span>
               </li>
               <li><hr className="dropdown-divider" /></li>
 
-              <li>
-                <Link className="dropdown-item d-flex align-items-center" to="users-profile.html">
-                  <i className="bi bi-person"></i>
-                  <span>My Profile</span>
-                </Link>
-              </li>
-              <li><hr className="dropdown-divider" /></li>
-
+           
+             
               <li>
               <Link className="dropdown-item d-flex align-items-center" to="/account_settings">
                 <i className="bi bi-gear"></i>
