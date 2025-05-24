@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import axios from "axios";
 
 // Define the validation schema using yup
 const schema = yup.object().shape({
@@ -23,31 +24,39 @@ const [loading, setLoading] = useState(false); // State variable for loading
 const onSubmit = async (data) => {
     setLoading(true); // Set loading to true when form is submitted
     try {
-        const response = await fetch("http://localhost/wp_api/authentication/authenticate.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
+        const response = await axios.post(
+            "http://localhost/wp_api/authentication/authenticate.php",
+            data,
+            {
+                headers: { "Content-Type": "application/json" },
+            }
+        );
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
+        const result = response.data;
 
         if (result.token) {
+            // Store token and user details in localStorage
             localStorage.setItem("token", result.token);
-            localStorage.setItem("username", result.username); // Store username in local storage
-            localStorage.setItem("role", result.role); // Store user ID in local storage
-            //console.log("Login successful:", result);
-            //toast.success("Login successful!", { position: "top-right" });
-            navigate("/dashbaord"); // Navigate to Dashboard after successful login
+            localStorage.setItem("username", result.username);
+            localStorage.setItem("role", result.role);
+
+            // Navigate to the appropriate dashboard based on the user's role
+            if (result.role === "admin") {
+                navigate("/dashbaord"); // Admin dashboard
+            } else if (result.role === "Reception") {
+                navigate("/Reception"); // Reception dashboard
+            } else {
+                navigate("/user-dashboard"); // Default user dashboard
+            }
         } else {
             toast.error(result.message || "Login failed.", { position: "top-right" });
         }
     } catch (error) {
-        toast.error("Something went wrong. Please try again.", { position: "top-right" });
-        //console.error("Error:", error);
+        toast.error(
+            error.response?.data?.message || "Something went wrong. Please try again.",
+            { position: "top-right" }
+        );
+        console.error("Error:", error);
     } finally {
         setLoading(false); // Set loading to false when API call is completed
     }

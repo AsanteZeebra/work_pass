@@ -22,13 +22,14 @@ import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 import countryList from "country-list";
 
-const Customers = ({ onChange }) => {
+const Rec_customers = ({ onChange }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const countries = countryList.getNames();
-  const tableRef = useRef(null); // Ref for the table element
+        const tableRef = useRef(null); // Ref for the table element
+  const [country, setCountry] = useState("");
 
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
@@ -140,9 +141,9 @@ const Customers = ({ onChange }) => {
       if (response.data.status === "success") {
         toast.success(response.data.message, { position: "top-right" });
         //console.log(response.data.message);
-        window.location.reload();
         setLoading(false);
         reset(); // Reset the form after successful submission
+        window.location.reload();
       
       } else {
         toast.error(response.data.message, { position: "top-right" });
@@ -611,4 +612,4 @@ const Customers = ({ onChange }) => {
   );
 };
 
-export default Customers;
+export default Rec_customers;

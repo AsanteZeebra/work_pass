@@ -150,16 +150,16 @@ const Assign_case = ({ onChange }) => {
 
       if (response.data.status === "success") {
         toast.success(response.data.message, { position: "top-right" });
-        console.log(response.data.message);
+        //console.log(response.data.message);
         setLoading(false);
         reset(); // Reset the form after successful submission
       } else {
         toast.error(response.data.message, { position: "top-right" });
-        console.log(response.data);
+        //console.log(response.data);
         setLoading(false);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+     // console.error("Error submitting form:", error);
       toast.error("An error occurred!", { position: "top-right" });
       setLoading(false);
     }

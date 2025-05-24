@@ -22,7 +22,7 @@ import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
 
 
-const Passpots_info = ({ onChange }) => {
+const Rec_passport = ({ onChange }) => {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
@@ -248,11 +248,18 @@ const Passpots_info = ({ onChange }) => {
                                   >
                                     <li>
                                       <Link
-                                        
+                                        to={`/request`}
                                         className="dropdown-item"
-                                       
+                                        onClick={() =>
+                                          handledata(
+                                            passport.passport_no,
+                                            passport.fullname,
+                                            passport.email,
+                                           
+                                          )
+                                        }
                                       >
-                                       View
+                                        Collect/Return
                                       </Link>
                                     </li>
 
@@ -286,4 +293,4 @@ const Passpots_info = ({ onChange }) => {
   );
 };
 
-export default Passpots_info;
+export default Rec_passport;

@@ -272,13 +272,21 @@ const Passport_overview = () => {
               <div className="card info-card sales-card">
                 <div className="card-body">
                   <h5 className="card-title">
-                    Active <span>| passports</span>
+                    All <span>| passports</span>
                   </h5>
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i className="bi bi-check2-circle"></i>
                     </div>
-                  
+                    <div className="ps-3">
+                      {countData ? (
+                        <h6>{countData.all_passports}</h6>
+                      ) : (
+                        <p>No case data available.</p>
+                      )}
+ 
+                    
+                    </div>
                   </div>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import ReactApexChart from "react-apexcharts";
 
 const LazyReactApexChart = lazy(() => import("react-apexcharts"));
 
-const Dashboard = () => {
+const Reception = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
 
@@ -277,7 +277,7 @@ const Dashboard = () => {
       </div>
 
       <div className="row">
-        <div className="col-lg-8">
+        <div className="col-lg-12">
           <div className="row">
             <div className="col-xxl-4 col-md-6">
               <div className="card info-card sales-card">
@@ -409,176 +409,14 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="col-12">
-              <div className="card top-selling overflow-auto">
-                <div className="filter">
-                  <Link className="icon" to="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></Link>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    <li><Link className="dropdown-item" to="#">Today</Link></li>
-                    <li><Link className="dropdown-item" to="#">This Month</Link></li>
-                    <li><Link className="dropdown-item" to="#">This Year</Link></li>
-                  </ul>
-                </div>
-                <div className="card-body pb-0">
-                  <h5 className="card-title">Top Selling <span>| Today</span></h5>
-                  <table className="table table-borderless">
-                    <thead>
-                      <tr>
-                        <th scope="col">Preview</th>
-                        <th scope="col">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Sold</th>
-                        <th scope="col">Revenue</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row"><Link to="#"><img src="assets/img/product-1.jpg" alt="" /></Link></th>
-                        <td><Link to="#" className="text-primary fw-bold">Ut inventore ipsa voluptas nulla</Link></td>
-                        <td>$64</td>
-                        <td className="fw-bold">124</td>
-                        <td>$5,828</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><Link to="#"><img src="assets/img/product-2.jpg" alt="" /></Link></th>
-                        <td><Link to="#" className="text-primary fw-bold">Exercitationem similique doloremque</Link></td>
-                        <td>$46</td>
-                        <td className="fw-bold">98</td>
-                        <td>$4,508</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><Link to="#"><img src="assets/img/product-3.jpg" alt="" /></Link></th>
-                        <td><Link to="#" className="text-primary fw-bold">Doloribus nisi exercitationem</Link></td>
-                        <td>$59</td>
-                        <td className="fw-bold">74</td>
-                        <td>$4,366</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><Link to="#"><img src="assets/img/product-4.jpg" alt="" /></Link></th>
-                        <td><Link to="#" className="text-primary fw-bold">Officiis quaerat sint rerum error</Link></td>
-                        <td>$32</td>
-                        <td className="fw-bold">63</td>
-                        <td>$2,016</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><Link to="#"><img src="assets/img/product-5.jpg" alt="" /></Link></th>
-                        <td><Link to="#" className="text-primary fw-bold">Sit unde debitis delectus repellendus</Link></td>
-                        <td>$79</td>
-                        <td className="fw-bold">41</td>
-                        <td>$3,239</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
 
-        <div className="col-lg-4">
-          <div className="card">
-            <div className="filter">
-              <Link className="icon" to="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></Link>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li className="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-                <li><Link className="dropdown-item" to="#">Today</Link></li>
-                <li><Link className="dropdown-item" to="#">This Month</Link></li>
-                <li><Link className="dropdown-item" to="#">This Year</Link></li>
-              </ul>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">Recent Activity <span>| Today</span></h5>
-              <div className="activity">
-                <div className="activity-item d-flex">
-                  <div className="activite-label">32 min</div>
-                  <i className='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                  <div className="activity-content">
-                    Quia quae rerum <Link to="#" className="fw-bold text-dark">explicabo officiis</Link> beatae
-                  </div>
-                </div>
-                <div className="activity-item d-flex">
-                  <div className="activite-label">56 min</div>
-                  <i className='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                  <div className="activity-content">
-                    Voluptatem blanditiis blanditiis eveniet
-                  </div>
-                </div>
-                <div className="activity-item d-flex">
-                  <div className="activite-label">2 hrs</div>
-                  <i className='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                  <div className="activity-content">
-                    Voluptates corrupti molestias voluptatem
-                  </div>
-                </div>
-                <div className="activity-item d-flex">
-                  <div className="activite-label">1 day</div>
-                  <i className='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                  <div className="activity-content">
-                    Tempore autem saepe <Link to="#" className="fw-bold text-dark">occaecati voluptatem</Link> tempore
-                  </div>
-                </div>
-                <div className="activity-item d-flex">
-                  <div className="activite-label">2 days</div>
-                  <i className='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                  <div className="activity-content">
-                    Est sit eum reiciendis exercitationem
-                  </div>
-                </div>
-                <div className="activity-item d-flex">
-                  <div className="activite-label">4 weeks</div>
-                  <i className='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                  <div className="activity-content">
-                    Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="filter">
-              <Link className="icon" to="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></Link>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li className="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-                <li><Link className="dropdown-item" to="#">Today</Link></li>
-                <li><Link className="dropdown-item" to="#">This Month</Link></li>
-                <li><Link className="dropdown-item" to="#">This Year</Link></li>
-              </ul>
-            </div>
-            <div className="card-body pb-0">
-              <h5 className="card-title">Budget Report <span>| This Month</span></h5>
-              <ReactApexChart options={chartOptionsarea} series={chartSeriesarea} type="radar" height={350} />
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="filter">
-              <Link className="icon" to="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></Link>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li className="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-                <li><Link className="dropdown-item" to="#">Today</Link></li>
-                <li><Link className="dropdown-item" to="#">This Month</Link></li>
-                <li><Link className="dropdown-item" to="#">This Year</Link></li>
-              </ul>
-            </div>
-            <div className="card-body pb-0">
-              <h5 className="card-title">Website Traffic <span>| Today</span></h5>
-              <ReactApexChart options={chartOptionspolar} series={chartSeriespolar} type="polarArea" height={350} />
-            </div>
-          </div>
-        </div>
+       
       </div>
     </>
   );
 }
 
-export default Dashboard;
+export default Reception;

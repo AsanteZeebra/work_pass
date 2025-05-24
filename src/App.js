@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './Layout/Layout';
+import Res_Layout from './Layout/ResLayout';
 import Dashboard from './Dasbaord';
 import Login from './components/authentication/login';
 import Create_Account from './components/authentication/singup';
@@ -22,6 +23,14 @@ import Passport_overview from './components/passport/passport_overview';
 import Payment from './components/payment/payment';
 import Transactions from './components/payment/transactions';
 import Appointment from './components/appointment/appointment';
+import Reception from './components/departments/Reception';
+import Rec_customers from './components/clients/rec_customers';
+import Rec_passport from './components/passport/rec_passport';
+import Rec_appointment from './components/appointment/rec_appointment';
+import Reschedule_appointment from './components/appointment/reschedule';
+import Rec_task_list from './components/cases/rec_task_list';
+import Start_task from './components/cases/start_task';
+
 
 import { useState } from 'react';
 
@@ -61,11 +70,24 @@ function App() {
 
       <Route path="/passports_info" element={<Layout><Passpots_info token={token}/></Layout>} />
       <Route path="/passport_overview" element={<Layout><Passport_overview token={token}/></Layout>} />
-      <Route path="/request" element={<Layout><Request token={token}/></Layout>} />
+      <Route path="/request" element={<Res_Layout><Request token={token}/></Res_Layout>} />
       
       <Route path="/payment" element={<Layout><Payment token={token}/></Layout>} />
       <Route path="/transactions" element={<Layout><Transactions token={token}/></Layout>} />
       <Route path="/appointment" element={<Layout><Appointment token={token}/></Layout>} />
+
+      <Route path="/reception" element={<Res_Layout><Reception token={token}/></Res_Layout>} />
+      <Route path="/rec_customers" element={<Res_Layout><Rec_customers token={token}/></Res_Layout>} />
+      <Route path="/rec_passport" element={<Res_Layout><Rec_passport token={token}/></Res_Layout>} />
+      <Route path="/rec_appointment" element={<Res_Layout><Rec_appointment token={token}/></Res_Layout>} />
+      <Route path="/reschedule" element={<Res_Layout><Reschedule_appointment token={token}/></Res_Layout>} />
+      <Route path="/rec_task_list" element={<Res_Layout><Rec_task_list token={token}/></Res_Layout>} />
+      <Route path="/start_task" element={<Res_Layout><Start_task token={token}/></Res_Layout>} />
+      
+
+
+
+
 
 
      

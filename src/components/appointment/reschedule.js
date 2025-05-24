@@ -10,51 +10,50 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { set, useForm } from "react-hook-form";
 
-const Pay_salary = () => {
+const Reschedule_appointment = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   // Retrieve employee_name and emp_salary from localStorage
-  const [employeeName, setEmployeeName] = useState(
-    localStorage.getItem("emp_name") || ""
+  const [appointment_id, setAppointmentID] = useState(
+    localStorage.getItem("app_id") || ""
   );
-  const [Salary, setEmpSalary] = useState(
-    localStorage.getItem("emp_salary") || "",
+  const [Fullname, setFullname] = useState(
+    localStorage.getItem("app_name") || "",
    
   );
   
-  const [Department, setDeaprtment] = useState(
-    localStorage.getItem("emp_department") || ""
+  const [Destination, setDestination] = useState(
+    localStorage.getItem("app_destination") || ""
   );
-  const [Position, setPosition] = useState(
-    localStorage.getItem("emp_position") || ""
-  );
-
-  const [Currency, setCurrency] = useState(
-    localStorage.getItem("currency") || ""
+  const [type, setType] = useState(
+    localStorage.getItem("app_type") || ""
   );
 
-  const [Month_year, setMonth_year] = useState(
-    localStorage.getItem("emp_month_year") || ""
+  const [email, setEmail] = useState(
+    localStorage.getItem("app_email") || ""
+  );
+  const [telephone, setTelephone] = useState(
+    localStorage.getItem("app_telephone") || ""
+  );
+  const [date, setDate] = useState(
+    localStorage.getItem("app_date") || ""
+  );
+    const [time, setTime] = useState(
+    localStorage.getItem("app_time") || ""
   );
 
-  const [employeeID, setEployeeID] = useState(
-    localStorage.getItem("emp_id") || ""
-    );
-    const [Email, setEmail] = useState(
-        localStorage.getItem("emp_email") || ""
-        );
+ 
 
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
-    department: yup.string().required("Department is required"),
-    position: yup.string().required("Position is required"),
-    method: yup.string().required("Payment method is required"),
-    currency: yup.string().required("Currency is required"),
-    motnh_year: yup.string().required("Month and Year is required"),
-    salary: yup.number().required("Salary amount is required"),
-    employee_id: yup.string().required("Employee ID is required"),
+    destination: yup.string().required("destination not found"),
+    telephone: yup.string().required("telephone number is required"),
+    appointment_id: yup.string().required("Appointment ID is required"),
+    app_type: yup.string().required("Appointment Type is required"),
+    app_date: yup.string().required("Appointment Date is required"),
+    app_time: yup.string().required("Appointment Time is required"),
     email: yup.string().email("Invalid email format").required("Email is required"),
   });
 
@@ -74,13 +73,12 @@ const Pay_salary = () => {
     localStorage.clear();
     navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
-
   useEffect(() => {
     const verifyToken = async (token) => {
       try {
         const response = await axios.post(
           "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
+          {},
           {
             headers: {
               "Content-Type": "application/json",
@@ -88,11 +86,8 @@ const Pay_salary = () => {
             },
           }
         );
-
-        //console.log("Token is valid:", response.data);
       } catch (error) {
-        //console.error("Token validation error:", error);
-        toast.success("Unauthorized", error);
+        toast.error("Unauthorized", { position: "top-right" });
         handleLogout();
       }
     };
@@ -100,20 +95,18 @@ const Pay_salary = () => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
+        const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
           handleLogout();
         } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
+          const timeout = (decodedToken.exp - currentTime) * 1000;
           const logoutTimer = setTimeout(() => {
             handleLogout();
           }, timeout);
 
-          // Call verifyToken before returning
           verifyToken(token);
 
-          // Cleanup the timer when the component unmounts
           return () => clearTimeout(logoutTimer);
         }
       } catch (error) {
@@ -123,23 +116,19 @@ const Pay_salary = () => {
     } else {
       navigate("/login");
     }
-  }, [token, navigate, handleLogout]); // Now handleLogout is included
-
+  }, [token, navigate, handleLogout]);
+ 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://main.fremikeconsult.com/wp_api/employees/pay_salary.php",
+        "http://localhost/wp_api/appointment/reschedule.php",
         {
-          month_year: data.motnh_year,
-         employee_id: data.employee_id,
-         method: data.method,
-            salary: data.salary,
-            currency: data.currency,
-            fullname: data.fullname,
-            department: data.department,
-            position: data.position,
-            email: data.email,
+        appointment_id: data.appointment_id,
+        app_date: data.app_date,
+        app_time: data.app_time,
+        fullname: data.fullname,
+        email: data.email,
           
         },
         {
@@ -152,7 +141,7 @@ const Pay_salary = () => {
         setLoading(false);
         reset(); // Reset the form after successful submission
         setTimeout(() => {
-          navigate("/payroll"); // Navigate to payroll page after 3 seconds
+          navigate("/rec_appointment"); // Navigate to payroll page after 3 seconds
         }, 5000);
         
       } else {
@@ -167,25 +156,25 @@ const Pay_salary = () => {
   return (
     <>
       <div className="pagetitle">
-        <h1>Payroll</h1>
+        <h1>Appointment</h1>
         <nav>
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <a href="index.html">Pay_salary</a>
+              <a href="index.html">reschedule_appointment</a>
             </li>
-            <li className="breadcrumb-item active">record_salary</li>
+            <li className="breadcrumb-item active">reschedule</li>
           </ol>
         </nav>
       </div>
       <div className="row align-items-center justify-content-center">
         <div className="col-lg-12">
           <div className="row align-items-center justify-content-center">
-            <div className="col-9">
+            <div className="col-6">
               <br />
               <br />
               <div className="card recent-sales overflow-auto justify-content-center">
                 <div className="card-body justify-content-center">
-                  <h5 className="card-title">Record Salary</h5>
+                  <h5 className="card-title">Reschedule Appointment {date}  {time}</h5>
 
                   {loading ? (
                     <div className="text-center">
@@ -201,7 +190,7 @@ const Pay_salary = () => {
                             htmlFor="employeeName"
                             className="col-sm-2 col-form-label"
                           >
-                            Employee Name
+                           Fullname
                           </label>
                           <div className="">
                             <input
@@ -209,8 +198,8 @@ const Pay_salary = () => {
                               className="form-control"
                               id="employeeName"
                               placeholder="Employee Name"
-                              value={employeeName} // Set value from localStorage
-                              onChange={(e) => setEmployeeName(e.target.value)} // Update state on change
+                              value={Fullname} // Set value from localStorage
+                              onChange={(e) => setFullname(e.target.value)} // Update state on change
                               required
                               disabled
                               {...register("fullname")}
@@ -222,55 +211,56 @@ const Pay_salary = () => {
                         </div>
                       </div>
                       <div className="row mb-3">
-                        <div className="col-6">
+                        <div className="col-6" hidden>
                           <div className="form-group">
                             <label
                               htmlFor="empSalary"
                               className="col-form-label"
                             >
-                              Department
+                              Destination
                             </label>
                             <div className="">
                               <input
                                 type="text"
                                 className="form-control"
-                                id="department"
-                                placeholder="Department"
-                                value={Department} // Set value from localStorage
-                                onChange={(e) => setDeaprtment(e.target.value)} // Update state on change
+                                id="destination"
+                                placeholder="destination"
+                                value={Destination} // Set value from localStorage
+                                onChange={(e) => setDestination(e.target.value)} // Update state on change
                                 required
                                 disabled
-                                {...register("department")}
+                                {...register("destination")}
                               />
                               <p className="text-danger">
-                                {errors.department?.message}
+                                {errors.destination?.message}
                               </p>
                             </div>
                           </div>
                         </div>
 
-                        <div className="col-6">
+                        <div className="col-6" hidden>
                           <div className="form-group">
                             <label
                               htmlFor="empSalary"
                               className="col-form-label"
                             >
-                              Position
+                              Appointment Type
                             </label>
                             <div className="">
                               <input
                                 type="text"
                                 className="form-control"
-                                id="position"
-                                placeholder="Position"
-                                value={Position} // Set value from localStorage
-                                onChange={(e) => setPosition(e.target.value)} // Update state on change
+                                id="appointmentType"
+                                placeholder="Appointment Type"
+                               
+                                value={type} // Set value from localStorage
+                                onChange={(e) => setType(e.target.value)} // Update state on change
                                 required
                                 disabled
-                                {...register("position")}
+                                {...register("app_type")}
                               />
                               <p className="text-danger">
-                                {errors.position?.message}
+                                {errors.app_type?.message}
                               </p>
                             </div>
                           </div>
@@ -278,28 +268,29 @@ const Pay_salary = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-6">
+                        <div className="col-6" hidden>
                           <div className="form-group">
                             <label
                               htmlFor="empSalary"
                               className="col-form-label"
                             >
-                              Salary Amount
+                              Telephone
                             </label>
                             <div className="">
                               <input
                                 type="text"
                                 className="form-control"
-                                id="salary"
-                                placeholder="Salary Amount"
-                                value={Salary} // Set value from localStorage
-                                onChange={(e) => setEmpSalary(e.target.value)} // Update state on change
+                                id="telephone"
+                                placeholder="Telephone"
+                               
+                                value={telephone} // Set value from localStorage
+                                onChange={(e) => setTelephone(e.target.value)} // Update state on change
                                 required
                                 disabled
-                                {...register("salary")}
+                                {...register("telephone")}
                               />
                               <p className="text-danger">
-                                {errors.salary?.message}
+                                {errors.telephone?.message}
                               </p>
                             </div>
                           </div>
@@ -310,113 +301,121 @@ const Pay_salary = () => {
                               htmlFor="paymentMethod"
                               className="col-form-label"
                             >
-                              Payment Method
-                            </label>
-                            <div className="">
-                              <select
-                                className="form-select"
-                                id="paymentMethod"
-                                aria-label="Default select example"
-                                {...register("method")}
-                              >
-                                <option value="" selected>
-                                  --Select Payment Method--
-                                </option>
-                                <option value="Bank Transfer">
-                                  Bank Transfer
-                                </option>
-                                <option value="Cash">Cash</option>
-                                <option value="Cheque">Cheque</option>
-                                <option value="Mobile Money">
-                                  Mobile Money
-                                </option>
-                              </select>
-                              <p className="text-danger">
-                                {errors.method?.message}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-6">
-                          <div className="form-group">
-                            <label
-                              htmlFor="paymentMethod"
-                              className="col-form-label"
-                            >
-                              Currency
+                            New Date
                             </label>
                             <div className="">
                               <input
-                                type="text"
+                                type="date"
                                 className="form-control"
-                                id="currency"
-                                placeholder="Currency"
-                                value={Currency} // Set value from localStorage
-                                onChange={(e) => setCurrency(e.target.value)} // Update state on change
+                                id="AppointmentDate"
+                                placeholder="Appointment Date"
+                               
+                                onChange={(e) => setDate
+                                    
+                                (e.target.value)} // Update state on change
                                 required
-                                disabled
-                                {...register("currency")}
+                                
+                                {...register("app_date")}
                               />
                               <p className="text-danger">
-                                {errors.currency?.message}
+                                {errors.app_date?.message}
                               </p>
                             </div>
                           </div>
                         </div>
 
-                        <div className="col-6">
+                         <div className="col-6">
                           <div className="form-group">
                             <label
                               htmlFor="paymentMethod"
                               className="col-form-label"
                             >
-                              Month_Year
+                            New Time
+                            </label>
+                            <div className="">
+                              <input
+                                type="time"
+                                className="form-control"
+                                id="AppointmentTime"
+                                placeholder="Appointment Time"
+                               
+                                onChange={(e) => setTime
+                                
+                                (e.target.value)} // Update state on change
+                                required
+                                
+                                {...register("app_time")}
+                              />
+                              <p className="text-danger">
+                                {errors.app_time?.message}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                          
+                           <div className="col-6" hidden>
+                          <div className="form-group">
+                            <label
+                              htmlFor="paymentMethod"
+                              className="col-form-label"
+                            >
+                            Appointment ID
                             </label>
                             <div className="">
                               <input
                                 type="text"
                                 className="form-control"
-                                id="month_year"
-                                placeholder="month_year"
-                                value={Month_year} // Set value from localStorage
-                                onChange={(e) => setMonth_year(e.target.value)} // Update state on change
+                                id="AppointmentID"
+                                placeholder="Appointment ID"
+                                value={appointment_id} // Set value from localStorage
+                                onChange={(e) => setDate
+                                    
+                                (e.target.value)} // Update state on change
                                 required
                                 disabled
-                                {...register("motnh_year")}
+                                
+                                {...register("appointment_id")}
                               />
                               <p className="text-danger">
-                                {errors.motnh_year?.message}
+                                {errors.appointment_id?.message}
                               </p>
                             </div>
                           </div>
+                        </div>
 
-                          <input
-                                type="text"
-                                className="form-control"
-                                id="employee_id"
-                                placeholder="employee_id"
-                                value={employeeID} // Set value from localStorage
-                                onChange={(e) => setEployeeID(e.target.value)} // Update state on change
-                                required hidden
-                                disabled
-                                {...register("employee_id")}
-                              />
+
+                         <div className="col-6" hidden>
+                          <div className="form-group">
+                            <label
+                              htmlFor="paymentMethod"
+                              className="col-form-label"
+                            >
+                            Email
+                            </label>
+                            <div className="">
                               <input
                                 type="text"
                                 className="form-control"
                                 id="email"
-                                placeholder="email"
-                                value={Email} // Set value from localStorage
-                                onChange={(e) => setEmail(e.target.value)} // Update state on change
-                                required hidden
+                                placeholder="Email"
+                                value={email} // Set value from localStorage
+                                onChange={(e) => setEmail
+                                    
+                                (e.target.value)} // Update state on change
+                                required
                                 disabled
+                                
                                 {...register("email")}
                               />
+                              <p className="text-danger">
+                                {errors.email?.message}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
+
+                   
 
                       <br />
                       <br />
@@ -446,4 +445,4 @@ const Pay_salary = () => {
   );
 };
 
-export default Pay_salary;
+export default Reschedule_appointment;
