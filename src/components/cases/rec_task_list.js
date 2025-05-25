@@ -13,6 +13,8 @@ const Rec_task_list = ({ onChange }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+   const [taskData,setTaskData]=useState(null);
+
   // Memoize handleLogout to prevent re-creation
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
@@ -62,6 +64,27 @@ const Rec_task_list = ({ onChange }) => {
     }
   }, [token, navigate, handleLogout]);
 
+    const Fetch_Task = async () => {
+    try {
+      const response = await axios.post("http://localhost/wp_api/Clients/fetch_customer_info.php",
+       
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.data.status === "success") {
+        setTaskData(response.data.case);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Error fetching case details. Please try again.");
+    }
+  };
+  
   return (
     <>
       <div className="pagetitle">
