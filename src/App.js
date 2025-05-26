@@ -28,7 +28,7 @@ import Rec_customers from './components/clients/rec_customers';
 import Rec_passport from './components/passport/rec_passport';
 import Rec_appointment from './components/appointment/rec_appointment';
 import Reschedule_appointment from './components/appointment/reschedule';
-// import Rec_task_list from './components/cases/rec_task_list';
+import Rec_task_list from './components/cases/rec_task_list';
 import Start_task from './components/cases/start_task';
 
 
@@ -81,8 +81,8 @@ function App() {
       <Route path="/rec_passport" element={<Res_Layout><Rec_passport token={token}/></Res_Layout>} />
       <Route path="/rec_appointment" element={<Res_Layout><Rec_appointment token={token}/></Res_Layout>} />
       <Route path="/reschedule" element={<Res_Layout><Reschedule_appointment token={token}/></Res_Layout>} />
-      {/* <Route path="/rec_task_list" element={<Res_Layout><Rec_task_list token={token}/></Res_Layout>} />
-       */}
+      <Route path="/rec_task_list" element={<Res_Layout><Rec_task_list token={token}/></Res_Layout>} />
+      
       <Route path="/start_task" element={<Res_Layout><Start_task token={token}/></Res_Layout>} />
       
 

@@ -91,23 +91,21 @@ const onSubmit = async (data) => {
                 <div className="card-body">
                   <div className="pt-4 pb-2">
                     <h5 className="card-title text-center pb-0 fs-4">
-                      Login to Your Account
+                      SIGN IN
                     </h5>
-                    <p className="text-center small">
-                      Enter your Email & Password to login
-                    </p>
+                   
                   </div>
 
                   <form className="row g-3 " onSubmit={handleSubmit(onSubmit)}>
                     <div className="col-12">
-                      <label for="email" className="form-label">
+                     <b> <label for="email" className="form-label">
                         Email
-                      </label>
+                      </label></b>
                       <div className="input-group ">
                         <input
                           type="email"
                           {...register("email")}
-                          className={`form-control form-control-lg ${errors.email ? "is-invalid" : ""}`}
+                          className={`form-control form-control ${errors.email ? "is-invalid" : ""}`}
                           id="exampleInputEmail1"
                           placeholder="Email"
                         />
@@ -117,13 +115,13 @@ const onSubmit = async (data) => {
                     </div>
 
                     <div className="col-12">
-                      <label for="yourPassword" className="form-label">
+                     <b> <label for="yourPassword" className="form-label">
                         Password
-                      </label>
+                      </label></b>
                       <input
                          type="password"
                          {...register("password")}
-                         className={`form-control form-control-lg ${errors.password ? "is-invalid" : ""}`}
+                         className={`form-control form-control ${errors.password ? "is-invalid" : ""}`}
                          id="exampleInputPassword1"
                          placeholder="Password"
                       />
@@ -132,7 +130,7 @@ const onSubmit = async (data) => {
                     </div>
 
                     <div className="col-12">
-                    <button type="submit" className="btn  btn-primary w-100" disabled={loading}>
+                    <button type="submit" className="btn  btn-outline-primary w-100 " disabled={loading}>
                                         {loading ? (
                                             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         ) : (
