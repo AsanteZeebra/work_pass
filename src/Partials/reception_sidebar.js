@@ -80,6 +80,12 @@ const Recep_Sidebar = () => {
                   <i className="bi bi-circle"></i><span>Tasks List</span>
                 </Link>
               </li>
+               <li>
+                <Link to={"/assigned_task"}>
+                  <i className="bi bi-circle"></i><span>Assigned Cases</span>
+                </Link>
+              </li>
+            
             
             </ul>
           </li>

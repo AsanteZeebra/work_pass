@@ -65,12 +65,27 @@ const Sidebar = () => {
             <ul id="applications-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
               <li>
                 <Link to="/assign_case">
-                  <i className="bi bi-circle"></i><span>Case List</span>
+                  <i className="bi bi-circle"></i><span>Cases</span>
                 </Link>
               </li>
+              
+            </ul>
+          </li>
+          
+          <li className="nav-item">
+            <Link className="nav-link collapsed" data-bs-target="#applications-nav" data-bs-toggle="collapse" to="#">
+              <i className="bi bi-file-earmark-text"></i><span>Tasks</span><i className="bi bi-chevron-down ms-auto"></i>
+            </Link>
+            <ul id="applications-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
+             
               <li>
-                <Link to="/activity_logs">
-                  <i className="bi bi-circle"></i><span>Activity logs</span>
+                <Link to="/tasks">
+                  <i className="bi bi-circle"></i><span>Tasks</span>
+                </Link>
+              </li>
+                <li>
+                <Link to="/create_task">
+                  <i className="bi bi-circle"></i><span>Add Task</span>
                 </Link>
               </li>
             </ul>

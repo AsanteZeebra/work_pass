@@ -30,6 +30,9 @@ import Rec_appointment from './components/appointment/rec_appointment';
 import Reschedule_appointment from './components/appointment/reschedule';
 import Rec_task_list from './components/cases/rec_task_list';
 import Start_task from './components/cases/start_task';
+import Tasks from './components/task/tasks';
+import Create_task from './components/task/create_task';
+import Assigned_task from './components/cases/assigned_task';
 
 
 import { useState } from 'react';
@@ -51,39 +54,36 @@ function App() {
       <Route path="/Reset_password" element={<Reset_Password />} />
       <Route path="/account_settings" element={<Layout><Account_Settings token={token} /></Layout>} />
       <Route path="/users_profile" element={<Layout><UsersProfile token={token} /></Layout>} />
-
       <Route path="/Dashbaord" element={<Layout><Dashboard token={token} /></Layout>} />
-
       <Route path="/overview" element={<Layout><Overview token={token} /></Layout>} />
       <Route path="/customers" element={<Layout><Customers token={token} /></Layout>} />
       <Route path="/customer_info" element={<Layout><Customer_info token={token} /></Layout>} />
-
       <Route path="/assign_case" element={<Layout><Assign_case token={token} /></Layout>} />
       <Route path="/add_employee" element={<Layout><Add_employee token={token} /></Layout>} />
       <Route path="/employee_list" element={<Layout><Employees token={token} /></Layout>} />
       <Route path="/payroll" element={<Layout><Payroll token={token} /></Layout>} />
-
       <Route path="/pay_salary" element={<Layout><Pay_salary token={token}/></Layout>} />
       <Route path="/statement" element={<Layout><Statement token={token}/></Layout>} />
-
       <Route path="/activity_logs" element={<Layout><ActivityLogs token={token}/></Layout>} />
-
       <Route path="/passports_info" element={<Layout><Passpots_info token={token}/></Layout>} />
       <Route path="/passport_overview" element={<Layout><Passport_overview token={token}/></Layout>} />
       <Route path="/request" element={<Res_Layout><Request token={token}/></Res_Layout>} />
-      
       <Route path="/payment" element={<Layout><Payment token={token}/></Layout>} />
       <Route path="/transactions" element={<Layout><Transactions token={token}/></Layout>} />
       <Route path="/appointment" element={<Layout><Appointment token={token}/></Layout>} />
-
       <Route path="/reception" element={<Res_Layout><Reception token={token}/></Res_Layout>} />
       <Route path="/rec_customers" element={<Res_Layout><Rec_customers token={token}/></Res_Layout>} />
       <Route path="/rec_passport" element={<Res_Layout><Rec_passport token={token}/></Res_Layout>} />
       <Route path="/rec_appointment" element={<Res_Layout><Rec_appointment token={token}/></Res_Layout>} />
       <Route path="/reschedule" element={<Res_Layout><Reschedule_appointment token={token}/></Res_Layout>} />
       <Route path="/rec_task_list" element={<Res_Layout><Rec_task_list token={token}/></Res_Layout>} />
-      
       <Route path="/start_task" element={<Res_Layout><Start_task token={token}/></Res_Layout>} />
+      <Route path="/tasks" element={<Layout><Tasks token={token}/></Layout>} />
+      <Route path="/create_task" element={<Layout><Create_task token={token}/></Layout>} />
+      <Route path="/assigned_task" element={<Res_Layout><Assigned_task token={token}/></Res_Layout>} />
+      
+      {/* Add more routes as needed */}
+      <Route path="*" element={<Layout><h1>404 Not Found</h1></Layout>} />
       
 
 

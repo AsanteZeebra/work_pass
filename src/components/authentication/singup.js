@@ -25,36 +25,37 @@ const Create_Account = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "http://localhost/wp_api/authentication/create_user.php",
-        {
-          fullname: data.fullname,
-          email: data.email,
-          password: data.password
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (response.data.status === "success") {
-        toast.success(response.data.message, { position: "top-right" });
-        setLoading(false);
-        reset(); // Reset the form after successful submission
-        setTimeout(() => {
-          navigate("/login"); // Navigate to login page after 3 seconds
-        }, 3000);
-      } else {
-        toast.error(response.data.message, { position: "top-right" });
-        setLoading(false);
+  setLoading(true);
+  try {
+    const response = await axios.post("http://admin.fremikeconsult.com/api/register",
+      {
+        name: data.fullname,
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.password // Required by Laravel!
+      },
+      {
+        headers: { "Content-Type": "application/json" },
       }
-    } catch (error) {
-      toast.error("An error occurred!", { position: "top-right" });
+    );
+
+    if (response.status === 201) {
+      toast.success(response.data.message, { position: "top-right" });
+      setLoading(false);
+      reset();
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+    } else {
+      toast.error(response.data.message, { position: "top-right" });
       setLoading(false);
     }
-  };
+  } catch (error) {
+    toast.error("An error occurred!", { position: "top-right" });
+    console.error("Error during registration:", error);
+    setLoading(false);
+  }
+};
 
   return (
     <>
