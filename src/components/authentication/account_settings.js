@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import $, { data } from "jquery";
@@ -31,63 +31,70 @@ const Account_Settings = () => {
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
   useEffect(() => {
-    const verifyToken = async (token) => {
+    const validate = async () => {
+      if (!token) return;
       try {
-        const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        console.log("Token is valid:", response.data);
+        await axios.get("http://localhost:8000/api/user", {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        // Token is valid
+        console.log("Token is valid.");
       } catch (error) {
-        console.error("Token validation error:", error);
-        toast.error("Token validation error");
-        handleLogout();
+        toast.error("Unauthorized Token.");
+        console.error("Token validation failed:", error);
+        handleLogout(); // Optionally handle logout
       }
     };
 
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
+    validate();
+  }, [token, handleLogout]);
+  const timer = useRef(null);
+  const timeoutDuration = 30 * 60 * 1000; // 30 minutes
 
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-        } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
-          const logoutTimer = setTimeout(() => {
-            handleLogout();
-          }, timeout);
+  const resetTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!token) return;
 
-          // Call verifyToken before returning
-          verifyToken(token);
-
-          // Cleanup the timer when the component unmounts
-          return () => clearTimeout(logoutTimer);
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        toast.error("Error decoding token");
-        handleLogout();
-      }
-    } else {
-      navigate("/login");
-    }
-  }, [token, navigate, handleLogout]); // Now handleLogout is included
+    timer.current = setTimeout(() => {
+      //console.log("Logged out due to inactivity");
+      handleLogout();
+    }, timeoutDuration);
+  };
 
   useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Start timer initially
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+
     axios
-      .get("http://localhost/wp_api/authentication/fetch_users.php")
+      .get("http://localhost:8000/api/fetch-users", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         setUsers(response.data.users);
         setLoading(false);
         // Initialize DataTable after data is fetched
+        if ($.fn.DataTable.isDataTable("#myTable")) {
+          $("#myTable").DataTable().destroy();
+        }
         $("#myTable").DataTable({
           responsive: true,
           lengthMenu: [5, 10, 25, 50],
@@ -130,7 +137,9 @@ const Account_Settings = () => {
         $("#myTable").DataTable().destroy();
       }
     };
-  }, []);
+  }, [token]);
+
+  
 
   const handleViewProfile = (uid, email) => {
     localStorage.setItem("uid", uid);
@@ -254,13 +263,13 @@ const Account_Settings = () => {
                           users.map((user) => (
                             <tr key={user.uid}>
                               <td>{user.uid}</td>
-                              <td>{user.fullname}</td>
+                              <td>{user.name}</td>
                               <td>{user.email}</td>
                               <td>{user.role}</td>
                               <td>
                                 <span
                                   className={`badge ${
-                                    user.status === "active"
+                                    user.status === "Active"
                                       ? "bg-success"
                                       : "bg-danger"
                                   }`}
@@ -288,14 +297,15 @@ const Account_Settings = () => {
                                           handleViewProfile(
                                             user.uid,
                                             user.email
-                                          ) 
-                                        } data-bs-toggle="modal"
-                                          data-bs-target="#vvt"
+                                          )
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#vvt"
                                       >
                                         Settings
                                       </Link>
                                     </li>
-                                  
+
                                     <li>
                                       <Link
                                         to={`/users_profile`}
@@ -326,11 +336,7 @@ const Account_Settings = () => {
                     </table>
                   )}
 
-                  <div
-                    className="modal fade"
-                    id="vvt"
-                    tabindex="-1"
-                  >
+                  <div className="modal fade" id="vvt" tabindex="-1">
                     <div className="modal-dialog modal-dialog-centered">
                       <div className="modal-content">
                         <div className="modal-header">
@@ -343,39 +349,37 @@ const Account_Settings = () => {
                           ></button>
                         </div>
                         <div className="modal-body">
-                         <form>
+                          <form>
+                            <div className="row mb-3">
+                              <div className="col-12">
+                                <div className="form-group">
+                                  <b>
+                                    <label> Role</label>
+                                  </b>
+                                  <select className="form-select">
+                                    <option>-Select-</option>
+                                    <option value={"Admin"}>Admin</option>
+                                    <option value={"Account"}>Account</option>
+                                    <option value={"Reception"}>Reception</option>
+                                    <option value={"Manager"}>Manager</option>
+                                  </select>
+                                </div>
+                              </div>
 
-                      <div className="row mb-3"> 
-                       <div className="col-12">
-                       <div className="form-group">
-                          <b>
-                            <label> Role</label>
-                          </b>
-                         <select className="form-select" >
-                           <option>-Select-</option>
-                           <option value={"Admin"}>Admin</option>
-                           <option value={"Account"}>Account</option>
-                           <option value={"Reception"}>Reception</option>
-                           <option value={"Manager"}>Manager</option>
-                         </select>
-                        </div>
-                        </div>
-
-                        <div className="col-12" style={{ marginTop: "20px" }}>
-                       <div className="form-group">
-                          <b>
-                            <label> Status</label>
-                          </b>
-                         <select className="form-select" >
-                           <option>-Select-</option>
-                           <option value={"Active"}>Activate</option>
-                           <option value={"Suspended"}>Suspend</option>
-                          
-                         </select>
-                        </div>
-                        </div>
-                      </div>
-                         </form>
+                              <div className="col-12" style={{ marginTop: "20px" }}>
+                                <div className="form-group">
+                                  <b>
+                                    <label> Status</label>
+                                  </b>
+                                  <select className="form-select">
+                                    <option>-Select-</option>
+                                    <option value={"Active"}>Activate</option>
+                                    <option value={"Suspended"}>Suspend</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
                         </div>
                         <div className="modal-footer">
                           <button

@@ -22,13 +22,16 @@ const navigate = useNavigate();
 const [loading, setLoading] = useState(false); // State variable for loading
 
 const onSubmit = async (data) => {
-    setLoading(true); // Set loading to true when form is submitted
+    setLoading(true);
     try {
         const response = await axios.post(
-            "http://localhost/wp_api/authentication/authenticate.php",
-            data,
+            "http://localhost:8000/api/login", // Laravel API endpoint
+            {email: data.email,
+            password: data.password,},
+
             {
-                headers: { "Content-Type": "application/json" },
+                headers: { "Accept": "application/json" },
+                
             }
         );
 
@@ -37,16 +40,16 @@ const onSubmit = async (data) => {
         if (result.token) {
             // Store token and user details in localStorage
             localStorage.setItem("token", result.token);
-            localStorage.setItem("username", result.username);
-            localStorage.setItem("role", result.role);
+            localStorage.setItem("username", result.user.name); // Adjust as per your user object
+            localStorage.setItem("role", result.user.role);     // Adjust as per your user object
 
-            // Navigate to the appropriate dashboard based on the user's role
-            if (result.role === "admin") {
-                navigate("/dashbaord"); // Admin dashboard
-            } else if (result.role === "Reception") {
-                navigate("/Reception"); // Reception dashboard
+            // Navigate based on user role
+            if (result.user.role === "Admin") {
+                navigate("/dashbaord");
+            } else if (result.user.role === "Reception") {
+                navigate("/Reception");
             } else {
-                navigate("/user-dashboard"); // Default user dashboard
+                navigate("/user-dashboard");
             }
         } else {
             toast.error(result.message || "Login failed.", { position: "top-right" });
@@ -58,7 +61,7 @@ const onSubmit = async (data) => {
         );
         console.error("Error:", error);
     } finally {
-        setLoading(false); // Set loading to false when API call is completed
+        setLoading(false);
     }
 };
   return (
@@ -72,18 +75,7 @@ const onSubmit = async (data) => {
                   to="/login"
                   className="logo d-flex align-items-center w-auto"
                 >
-                  <span
-                    className="d-none d-lg-block"
-                    style={{ color: "#991C26" }}
-                  >
-                    Work{" "}
-                  </span>{" "}
-                  <span
-                    className="d-none d-lg-block"
-                    style={{ color: "#404042" }}
-                  >
-                    Pass{" "}
-                  </span>
+                <img src="assets/img/wp1.png" alt="" className="img-fluid" style={{ maxWidth: "250px" }} />
                 </Link>
               </div>
 
@@ -98,7 +90,7 @@ const onSubmit = async (data) => {
 
                   <form className="row g-3 " onSubmit={handleSubmit(onSubmit)}>
                     <div className="col-12">
-                     <b> <label for="email" className="form-label">
+                     <b> <label htmlFor="email" className="form-label">
                         Email
                       </label></b>
                       <div className="input-group ">
@@ -115,7 +107,7 @@ const onSubmit = async (data) => {
                     </div>
 
                     <div className="col-12">
-                     <b> <label for="yourPassword" className="form-label">
+                     <b> <label htmlFor="yourPassword" className="form-label">
                         Password
                       </label></b>
                       <input

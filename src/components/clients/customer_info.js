@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useCallback } from "react";
-import { jwtDecode } from "jwt-decode";
+import React, { useState, useEffect,useRef, useCallback } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,55 +20,53 @@ const CustomerInfo = () => {
     navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
-  useEffect(() => {
-    const verifyToken = async (token) => {
-      try {
-        const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        //console.log("Token is valid:", response.data);
-      } catch (error) {
-        //console.error("Token validation error:", error);
-        handleLogout();
-      }
-    };
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
-
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-        } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
-          const logoutTimer = setTimeout(() => {
-            handleLogout();
-          }, timeout);
-
-          // Call verifyToken before returning
-          verifyToken(token);
-
-          // Cleanup the timer when the component unmounts
-          return () => clearTimeout(logoutTimer);
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        handleLogout();
-      }
-    } else {
-      navigate("/login");
+    useEffect(() => {
+  const validate = async () => {
+    if (!token) return;
+    try {
+      await axios.get("http://localhost:8000/api/user", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Token is valid
+      console.log("Token is valid.");
+    } catch (error) {
+      toast.error("Unauthorized Token.");
+      console.error("Token validation failed:", error);
+       handleLogout(); // Optionally handle logout
     }
-  }, [token, navigate, handleLogout]); // Now handleLogout is included
+  };
 
+  validate();
+}, [token, handleLogout]);
+  const timer = useRef(null);
+  const timeoutDuration = 30 * 60 * 1000; // 30 minutes
+
+  const resetTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!token) return;
+
+    timer.current = setTimeout(() => {
+      //console.log("Logged out due to inactivity");
+      handleLogout();
+    }, timeoutDuration);
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Start timer initially
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [token]);
 
   
 
@@ -93,11 +90,12 @@ const CustomerInfo = () => {
   const fetchCaseDetails = async (passportNo) => {
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/Clients/fetch_cases.php",
+        "http://localhost:8000/api/find-case",
         { passport_no: passportNo }, // Send as POST body
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
           },
         }
       );
@@ -114,11 +112,12 @@ const CustomerInfo = () => {
 
   const fetchcustomerDetails = async (passportNo) => {
     try {
-      const response = await axios.post("http://localhost/wp_api/Clients/fetch_customer_info.php",
+      const response = await axios.post("http://localhost:8000/api/client-info",
         { passport_no: passportNo }, // Send as POST body
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
           },
         }
       );

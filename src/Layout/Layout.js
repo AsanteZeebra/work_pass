@@ -19,7 +19,7 @@ const Layout = ({children}) => {
         <motion.div id="main" className="main"  initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}> 
-        <section class="section dashboard">
+        <section className="section dashboard">
 
         {children}
        

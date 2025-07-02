@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect,useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,14 +11,11 @@ import * as yup from "yup";
 
 // Define the validation schema using yup
 const schema = yup.object().shape({
-  email: yup
+  email1: yup
     .string()
     .email("Invalid email format")
-    .required("Email is required"),
-  role: yup
-    .string()
-    .notOneOf([""], "Role is required") // Prevent default empty value
-    .required("Role is required"),
+    .required("Email  address is required"),
+
 });
 
 const UsersProfile = () => {
@@ -77,56 +74,54 @@ const UsersProfile = () => {
     navigate("/login"); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
-  useEffect(() => {
-    const verifyToken = async (token) => {
-      try {
-        const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        //console.log("Token is valid:", response.data);
-      } catch (error) {
-        console.error("Token validation error:", error);
-        toast.error("Token validation error");
-        handleLogout();
-      }
-    };
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
-
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-        } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
-          const logoutTimer = setTimeout(() => {
-            handleLogout();
-          }, timeout);
-
-          // Call verifyToken before returning
-          verifyToken(token);
-
-          // Cleanup the timer when the component unmounts
-          return () => clearTimeout(logoutTimer);
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        toast.error("Error decoding token");
-        handleLogout();
-      }
-    } else {
-      navigate("/login");
+       useEffect(() => {
+  const validate = async () => {
+    if (!token) return;
+    try {
+      await axios.get("http://localhost:8000/api/user", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Token is valid
+      //console.log("Token is valid.");
+    } catch (error) {
+      toast.error("Unauthorized Access.");
+      //console.error("Token validation failed:", error);
+       handleLogout(); // Optionally handle logout
     }
-  }, [token, navigate, handleLogout]); //  handleLogout is included
+  };
+
+  validate();
+}, [token, handleLogout]);
+  const timer = useRef(null);
+  const timeoutDuration = 30 * 60 * 1000; // 30 minutes
+
+  const resetTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!token) return;
+
+    timer.current = setTimeout(() => {
+      //console.log("Logged out due to inactivity");
+      handleLogout();
+    }, timeoutDuration);
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Start timer initially
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [token]);
+
 
   useEffect(() => {
     const userId = localStorage.getItem("uid"); // Retrieve user_id from localStorage
@@ -139,14 +134,18 @@ const UsersProfile = () => {
     const fetchUserProfile = async () => {
       try {
         const response = await axios.get(
-          `http://localhost/wp_api/authentication/user_profile.php`,
+          "http://localhost:8000/api/fetch-user-by-id", // API endpoint
           {
-            params: { uid: userId }
+            params: { uid: userId }, // Pass uid as query param
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Include token in headers
+            },
           }
         );
-    
-        console.log("API Response:", response.data); // Debugging log
-         console.log("User ID:", userId); // Debugging log
+
+        //console.log("API Response:", response.data); // Debugging log
+        //console.log("User ID:", userId); // Debugging log
         if (response.data.status === "success" && response.data.user) {
           setUser(response.data.user);
           setPreview(response.data.user.profile_photo || null);
@@ -158,10 +157,9 @@ const UsersProfile = () => {
         toast.error(err.response?.data?.message || "An error occurred while fetching user data");
       }
     };
-    
 
     fetchUserProfile(); // Call the function inside the useEffect
-  }, []); // Empty dependency array to run only once
+  }, [token]); // Empty dependency array to run only once
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -247,16 +245,23 @@ const UsersProfile = () => {
   const [loading, setLoading] = useState(false); // State variable for loading
 
   const handleRequestReset = async (data) => {
+
     setLoading(true); // Set loading to true when form is submitted
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/authentication/request_reset.php",
-        { email: data.email }
+        "http://localhost:8000/api/send-reset-link", // Update to your API endpoint
+        { email: data.email1 },
+         {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
+          },
+        }
       );
       console.log("API response:", response.data); // Debugging log
-      if (response.data.message) {
-        console.log("Success message:", response.data.message); // Debugging log
-        toast.success(response.data.message);
+      if (response.data.status) {
+        console.log("Success message:", response.data.status); // Debugging log
+        toast.success(response.data.status);
         reset(); // Reset the form after successful request
       } else if (response.data.error) {
         console.log("Error message:", response.data.error); // Debugging log
@@ -270,31 +275,7 @@ const UsersProfile = () => {
     }
   };
 
-  const handleRoleChange = async (data) => {
-    setLoading(true); // Set loading to true when form is submitted
-    try {
-    
-      const response = await axios.post(
-        "http://localhost/wp_api/authentication/change_role.php",
-        { email: data.email }
-      );
-      console.log("API response:", response.data); // Debugging log
-      if (response.data.message) {
-        toast.success(response.data.message);
-        console.log("Success message:", response.data.message); // Debugging log
-      
-        reset(); // Reset the form after successful request
-      } else if (response.data.error) {
-        console.log("Error message:", response.data.error); // Debugging log
-        toast.error(response.data.error);
-      }
-    } catch (error) {
-      console.error("API error:", error.response?.data || error.message); // Debugging log
-      toast.error(error.response?.data?.error || "An error occurred");
-    } finally {
-      setLoading(false); // Set loading to false when API call is completed
-    }
-  };
+  
 
 
   return (
@@ -702,20 +683,22 @@ const UsersProfile = () => {
                       <form
                         className="pt-3"
                         onSubmit={handleSubmit(handleRequestReset)}
+                        noValidate
                       >
                         <div className="form-group">
                           <input
                             type="email"
-                            {...register("email")}
+                            name="email1"
+                            {...register("email1")}
                             className={`form-control form-control ${
-                              errors.email ? "is-invalid" : ""
+                              errors.email1 ? "is-invalid" : ""
                             }`}
                             id="exampleInputEmail1"
                             placeholder="Email"
                           />
-                          {errors.email && (
+                          {errors.email1 && (
                             <div className="invalid-feedback">
-                              {errors.email.message}
+                              {errors.email1.message}
                             </div>
                           )}
                         </div>

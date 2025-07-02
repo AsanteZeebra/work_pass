@@ -33,6 +33,7 @@ import Start_task from './components/cases/start_task';
 import Tasks from './components/task/tasks';
 import Create_task from './components/task/create_task';
 import Assigned_task from './components/cases/assigned_task';
+import ErrorPage from './error_page';
 
 
 import { useState } from 'react';
@@ -83,7 +84,8 @@ function App() {
       <Route path="/assigned_task" element={<Res_Layout><Assigned_task token={token}/></Res_Layout>} />
       
       {/* Add more routes as needed */}
-      <Route path="*" element={<Layout><h1>404 Not Found</h1></Layout>} />
+      <Route path="*" element={<ErrorPage/> } />
+      
       
 
 

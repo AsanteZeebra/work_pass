@@ -13,7 +13,7 @@ const Footer = () => {
     </div>
   </footer>
 
-  <Link to="#" className="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></Link>
+  <Link to="#" className="back-to-top d-flex align-items-center justify-content-center"><i className="bi bi-arrow-up-short"></i></Link>
 
         </>
  

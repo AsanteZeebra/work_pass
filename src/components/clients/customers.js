@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useCallback,useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import $ from "jquery";
+import $, { data } from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-buttons-bs5"; // DataTables Buttons with Bootstrap styling
 import "datatables.net-buttons/js/dataTables.buttons"; // Core buttons feature
@@ -39,55 +39,52 @@ const Customers = ({ onChange }) => {
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
   useEffect(() => {
-    const verifyToken = async (token) => {
-      try {
-        const response = await axios.post(
-          "http://localhost/wp_api/authentication/verify_token.php",
-          {}, // Empty body since it's a POST request
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        //console.log("Token is valid:", response.data);
-      } catch (error) {
-        //console.error("Token validation error:", error);
-        toast.success("Unauthorized",error)
-        handleLogout();
-      }
-    };
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Current time in seconds
-
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-        } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000; // Convert to milliseconds
-          const logoutTimer = setTimeout(() => {
-            handleLogout();
-          }, timeout);
-
-          // Call verifyToken before returning
-          verifyToken(token);
-
-          // Cleanup the timer when the component unmounts
-          return () => clearTimeout(logoutTimer);
-        }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        handleLogout();
-      }
-    } else {
-      navigate("/login");
+  const validate = async () => {
+    if (!token) return;
+    try {
+      await axios.get("http://localhost:8000/api/user", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Token is valid
+      console.log("Token is valid.");
+    } catch (error) {
+      toast.error("Unauthorized Token.");
+      console.error("Token validation failed:", error);
+       handleLogout(); // Optionally handle logout
     }
-  }, [token, navigate, handleLogout]); // Now handleLogout is included
+  };
 
+  validate();
+}, [token, handleLogout]);
+  const timer = useRef(null);
+  const timeoutDuration = 30 * 60 * 1000; // 30 minutes
+
+  const resetTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!token) return;
+
+    timer.current = setTimeout(() => {
+      //console.log("Logged out due to inactivity");
+      handleLogout();
+    }, timeoutDuration);
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Start timer initially
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [token]);
   // Define the modal form validation schema using yup
   const schema = yup.object().shape({
     fullname: yup.string().required("Name is required"),
@@ -120,7 +117,7 @@ const Customers = ({ onChange }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/Clients/add_client.php",
+        "http://localhost:8000/api/add-client",
         {
           fullname: data.fullname,
           email: data.email,
@@ -133,7 +130,9 @@ const Customers = ({ onChange }) => {
           country_of_interest: data.destination, 
         },
         {
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",Authorization: `Bearer ${token}` },
+         
+          
         }
       );
 
@@ -146,6 +145,7 @@ const Customers = ({ onChange }) => {
       
       } else {
         toast.error(response.data.message, { position: "top-right" });
+        console.error("Error:", response.data.message); // Log error message
         setLoading(false);
       }
     } catch (error) {
@@ -158,7 +158,12 @@ const Customers = ({ onChange }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost/wp_api/clients/fetch_customers.php")
+      .get("http://localhost:8000/api/clients", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`, // Include the token in the request headers
+        },
+      })
       .then((response) => {
         setUsers(response.data.users);
         setLoading(false);
@@ -220,9 +225,7 @@ const Customers = ({ onChange }) => {
     };
   }, []);
 
-  const handleViewProfile = (uid, ) => {
-    localStorage.setItem("passport_no", uid);
-  };
+  
 
   return (
     <>
@@ -527,6 +530,7 @@ const Customers = ({ onChange }) => {
                           <th>Fullname</th>
                           <th>Email</th>
                           <th>Nationality</th>
+                          <th>Passport_no</th>
                           <th>Passport Expiry</th>
                           <th>Telephone</th>
                           <th>Status</th>
@@ -541,6 +545,7 @@ const Customers = ({ onChange }) => {
                               <td>{user.fullname}</td>
                               <td>{user.email}</td>
                               <td>{user.nationality}</td>
+                              <td>{user.passport_no}</td>
                               <td>{user.expiry_date}</td>
                               <td>{user.telephone}</td>
                               <td>
@@ -577,7 +582,10 @@ const Customers = ({ onChange }) => {
                                         to={`/customer_info`}
                                         className="dropdown-item"
                                         onClick={() =>
-                                          handleViewProfile(user.Passport_no)
+                                          localStorage.setItem(
+                                            "passport_no",
+                                            user.passport_no
+                                          )
                                         }
                                       >
                                         <i className="bi bi-eye"></i> View

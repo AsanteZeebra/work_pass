@@ -1,61 +1,55 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
-
-// Define the validation schema using yup
-const schema = yup.object().shape({
-  fullname: yup.string().required("Name is required"),
-  email: yup.string().email("Invalid email format").required("Email is required"),
-  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-  repeatPassword: yup.string().oneOf([yup.ref('password'), null], "Passwords must match").required("Confirm Password is required")
-});
+import "react-toastify/dist/ReactToastify.css";
 
 const Create_Account = () => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(schema),
-  });
-
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data) => {
-  setLoading(true);
-  try {
-    const response = await axios.post("http://http://127.0.0.1:8000/api/register",
-      {
-        name: data.fullname,
-        email: data.email,
-        password: data.password,
-        password_confirmation: data.password // Required by Laravel!
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/register",
+        {
+          name: data.fullname,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.repeatPassword,
+          role: data.role,
+        },
+        {
+          headers: { "Accept": "application/json" },
+        }
+      );
 
-    if (response.status === 201) {
-      toast.success(response.data.message, { position: "top-right" });
-      setLoading(false);
-      reset();
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
-    } else {
-      toast.error(response.data.message, { position: "top-right" });
+      if (response.status === 201) {
+        toast.success(response.data.message, { position: "top-right" });
+        setLoading(false);
+        reset();
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
+      } else {
+        toast.error(response.data.message, { position: "top-right" });
+        setLoading(false);
+      }
+    } catch (error) {
+      toast.error("An error occurred!", { position: "top-right" });
       setLoading(false);
     }
-  } catch (error) {
-    toast.error("An error occurred!", { position: "top-right" });
-    console.error("Error during registration:", error);
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <>
@@ -82,25 +76,64 @@ const Create_Account = () => {
                       <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                         <div className="col-12">
                           <label className="form-label">Your Name</label>
-                          <input type="text" name="fullname" className="form-control" id="yourName" {...register("fullname")} />
+                          <input
+                            type="text"
+                            name="fullname"
+                            className="form-control"
+                            id="yourName"
+                            {...register("fullname", { required: "Full name is required" })}
+                          />
                           <p className="text-danger">{errors.fullname?.message}</p>
                         </div>
 
                         <div className="col-12">
                           <label className="form-label">Your Email</label>
-                          <input type="email" name="email" className="form-control" id="yourEmail" {...register("email")} />
+                          <input
+                            type="email"
+                            name="email"
+                            className="form-control"
+                            id="yourEmail"
+                            {...register("email", { required: "Email is required" })}
+                          />
                           <p className="text-danger">{errors.email?.message}</p>
                         </div>
 
                         <div className="col-12">
+                          <label className="form-label">Role</label>
+                          <select className="form-select" name="role" {...register("role", { required: "Role is required" })}>
+                            <option value="">-Select Role-</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User">User</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Reception">Reception</option>
+                            <option value="Security">Security</option>
+                            <option value="HR">HR</option>
+                            <option value="Accountant">Accountant</option>
+                          </select>
+                          <p className="text-danger">{errors.role?.message}</p>
+                        </div>
+
+                        <div className="col-12">
                           <label className="form-label">Password</label>
-                          <input type="password" name="password" className="form-control" id="yourPassword" {...register("password")} />
+                          <input
+                            type="password"
+                            name="password"
+                            className="form-control"
+                            id="yourPassword"
+                            {...register("password", { required: "Password is required" })}
+                          />
                           <p className="text-danger">{errors.password?.message}</p>
                         </div>
 
                         <div className="col-12">
                           <label className="form-label">Confirm Password</label>
-                          <input type="password" name="repeatPassword" className="form-control" id="repeatPassword" {...register("repeatPassword")} />
+                          <input
+                            type="password"
+                            name="repeatPassword"
+                            className="form-control"
+                            id="repeatPassword"
+                            {...register("repeatPassword", { required: "Confirm password is required" })}
+                          />
                           <p className="text-danger">{errors.repeatPassword?.message}</p>
                         </div>
 
@@ -110,7 +143,9 @@ const Create_Account = () => {
                           </button>
                         </div>
                         <div className="col-12">
-                          <p className="small mb-0">Already have an account? <Link to="/login">Log in</Link></p>
+                          <p className="small mb-0">
+                            Already have an account? <Link to="/login">Log in</Link>
+                          </p>
                         </div>
                       </form>
                     </div>

@@ -170,9 +170,9 @@ const Sidebar = () => {
 
           </li>
 
-          <li class="nav-item">
-        <Link class="nav-link collapsed" to="pages-faq.html">
-          <i class="bi bi-power"></i>
+          <li className="nav-item">
+        <Link className="nav-link collapsed" to="pages-faq.html">
+          <i className="bi bi-power"></i>
           <span>Logout</span>
         </Link>
       </li>

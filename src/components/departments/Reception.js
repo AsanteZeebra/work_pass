@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import React, { useState, useEffect,useRef, useCallback, lazy, Suspense } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import ReactApexChart from "react-apexcharts";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LazyReactApexChart = lazy(() => import("react-apexcharts"));
 
@@ -19,51 +21,60 @@ const Reception = () => {
     navigate('/login'); // Redirect to login page
   }, [navigate]); // Dependency ensures it doesn't change on every render
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const response = await axios.post(
-          'http://localhost/wp_api/authentication/verify_token.php',
-          {},
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-          }
-        );
-        console.log('Token is valid:', response.data);
-      } catch (error) {
-        console.error('Token validation error:', error);
-        handleLogout();
-      }
-    };
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-        } else {
-          const timeout = (decodedToken.exp - currentTime) * 1000;
-          const logoutTimer = setTimeout(() => {
-            handleLogout();
-          }, timeout);
-
-          verifyToken();
-
-          return () => clearTimeout(logoutTimer);
-        }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        handleLogout();
-      }
-    } else {
-      navigate('/login');
+  
+ useEffect(() => {
+  const validate = async () => {
+    if (!token) return;
+    try {
+      await axios.get("http://localhost:8000/api/user", {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Token is valid
+      console.log("Token is valid.");
+    } catch (error) {
+      toast.error("Unauthorized Token.");
+      console.error("Token validation failed:", error);
+       handleLogout(); // Optionally handle logout
     }
-  }, [token, navigate, handleLogout]);
+  };
+
+  validate();
+}, [token, handleLogout]);
+  const timer = useRef(null);
+  const timeoutDuration = 30 * 60 * 1000; // 30 minutes
+
+  const resetTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!token) return;
+
+    timer.current = setTimeout(() => {
+      console.log("Logged out due to inactivity");
+      handleLogout();
+    }, timeoutDuration);
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); // Start timer initially
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [token]);
+
+  
+
+
+
+
 
   const chartOptions = {
     chart: {

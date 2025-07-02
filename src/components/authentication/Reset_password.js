@@ -17,7 +17,7 @@ const schema = yup.object().shape({
     .string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
-  confirmPassword: yup
+  password_confirmation: yup
     .string()
     .oneOf([yup.ref('password'), null], "Passwords must match")
     .required("Confirm Password is required"),
@@ -40,13 +40,25 @@ const Reset_Password = () => {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get('token'); // Get token from URL query parameters
+  const token1 = localStorage.getItem("token"); // Get token from localStorage
 
   const handleRequestReset = async (data) => {
     setLoading(true); // Set loading to true when form is submitted
     try {
       const response = await axios.post(
-        "http://localhost/wp_api/authentication/reset_Password.php",
-        { token, email: data.email, password: data.password }
+        "http://localhost:8000/api/reset-password",
+        {
+          token, 
+          email: data.email, 
+          password: data.password,
+          password_confirmation: data.password_confirmation
+        },
+        {
+          headers: { 
+            "Accept": "application/json",
+            Authorization: `Bearer ${token1}` // Correct spelling and placement
+          }
+        }
       );
       console.log("API response:", response.data); // Debugging log
       if (response.data.message) {
@@ -62,11 +74,15 @@ const Reset_Password = () => {
       }
     } catch (error) {
       console.error("API error:", error.response?.data || error.message); // Debugging log
-      toast.error(error.response?.data.error || "An error occurred");
+      toast.error(error.response?.data?.error || "An error occurred");
     } finally {
       setLoading(false); // Set loading to false when API call is completed
     }
   };
+
+    // Memoize handleLogout to prevent re-creation
+
+
 
   return (
     <div className="content-wrapper d-flex align-items-center auth px-0">
@@ -83,7 +99,7 @@ const Reset_Password = () => {
                 <input
                   type="email"
                   {...register("email")}
-                  className={`form-control form-control-lg ${errors.email ? "is-invalid" : ""}`}
+                  className={`form-control form-control ${errors.email ? "is-invalid" : ""}`}
                   id="exampleInputEmail1"
                   placeholder="Email"
                 />
@@ -95,7 +111,7 @@ const Reset_Password = () => {
                 <input
                   type="password"
                   {...register("password")}
-                  className={`form-control form-control-lg ${errors.password ? "is-invalid" : ""}`}
+                  className={`form-control form-control ${errors.password ? "is-invalid" : ""}`}
                   id="exampleInputPassword1"
                   placeholder="New Password"
                 />
@@ -106,19 +122,19 @@ const Reset_Password = () => {
               <div className="form-group mb-3">
                 <input
                   type="password"
-                  {...register("confirmPassword")}
-                  className={`form-control form-control-lg ${errors.confirmPassword ? "is-invalid" : ""}`}
+                  {...register("password_confirmation")}
+                  className={`form-control form-control ${errors.password_confirmation ? "is-invalid" : ""}`}
                   id="exampleInputConfirmPassword1"
                   placeholder="Confirm Password"
                 />
-                {errors.confirmPassword && (
-                  <div className="invalid-feedback">{errors.confirmPassword.message}</div>
+                {errors.password_confirmation && (
+                  <div className="invalid-feedback">{errors.password_confirmation.message}</div>
                 )}
               </div>
               <div className="mt-3 d-grid gap-2">
                 <button
                   type="submit"
-                  className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                  className="btn btn-block btn-primary font-weight-medium auth-form-btn"
                   disabled={loading}
                 >
                   {loading ? (
